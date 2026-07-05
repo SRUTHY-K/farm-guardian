@@ -10,10 +10,12 @@ from google.genai import types
 from PIL import Image
 import io
 import logging
+from functools import wraps
 
 logger = logging.getLogger("farm_guardian.tools")
 
 def log_tool_call(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         # Filter out massive base64 strings in logs
         logged_args = [str(a)[:100] + "..." if isinstance(a, str) and len(str(a)) > 200 else a for a in args]

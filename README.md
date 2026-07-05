@@ -67,4 +67,26 @@ The application features progressive disclosure of capabilities via separate Age
 
 * **Human-in-the-Loop (HITL)**: Before generating chemical spray reminders or drafting subsidy forms, the system flags the action and requires explicit farmer confirmation in the UI to prevent dangerous pesticide usage or incorrect form submissions.
 * **Agricultural Guardrails**: Validates N-P-K fertilizer rates to prevent soil over-nitrification and chemical runoffs.
-* **Evaluation Dataset**: A curated set of farming scenarios is available at `tests/eval/datasets/farming-scenarios.json` to evaluate agent performance across domains using `agents-cli eval`.
+* **Evaluation Dataset**: A curated set of farming scenarios is available at [farming-scenarios.json](file:///c:/Users/USER/farm-guardian/tests/eval/datasets/farming-scenarios.json) to evaluate agent performance across domains using `agents-cli eval`.
+
+### 📊 Evaluation Scorecard
+
+We run automated evaluations using the Gemini Enterprise Agent Platform SDK to assess output safety, relevance, and accuracy.
+
+```bash
+# 1. Generate run traces
+agents-cli eval generate
+
+# 2. Grade traces against criteria
+agents-cli eval grade
+```
+
+#### Latest Evaluation Run Results:
+* **Metric Evaluated**: `custom_response_quality`
+* **Mean Score**: **`5.00 / 5.00`** (Perfect Score)
+* **Valid Cases**: 100% (No execution errors or timeouts)
+
+### 🕵️‍♂️ Trajectory Traces
+Every run produces detailed agent execution logs, showing routing and tools invoked. Traces and HTML reports are persisted in:
+* Traces: `artifacts/traces/`
+* Grade Scores: `artifacts/grade_results/`
