@@ -9,6 +9,25 @@ from google import genai
 from google.genai import types
 from PIL import Image
 import io
+import logging
+
+logger = logging.getLogger("farm_guardian.tools")
+
+def log_tool_call(func):
+    def wrapper(*args, **kwargs):
+        # Filter out massive base64 strings in logs
+        logged_args = [str(a)[:100] + "..." if isinstance(a, str) and len(str(a)) > 200 else a for a in args]
+        logged_kwargs = {k: (str(v)[:100] + "..." if isinstance(v, str) and len(str(v)) > 200 else v) for k, v in kwargs.items()}
+        logger.info(f"Tool {func.__name__} called with args={logged_args}, kwargs={logged_kwargs}")
+        try:
+            res = func(*args, **kwargs)
+            logger.info(f"Tool {func.__name__} returned successfully.")
+            return res
+        except Exception as e:
+            logger.error(f"Tool {func.__name__} raised exception: {e}", exc_info=True)
+            raise
+    return wrapper
+
 
 # Setup GenAI client for Vision Diagnosis and search
 # Google ADK sets environment variables: GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_CLOUD_PROJECT, etc.
@@ -21,6 +40,7 @@ def get_genai_client():
     else:
         return genai.Client()
 
+@log_tool_call
 def get_weather_forecast(location: str, date: Optional[str] = None) -> Dict[str, Any]:
     """Retrieves current weather conditions and forecast for a given farming location.
     Provides alerts for rain, frost, heat stress, and suggests general precautions.
@@ -101,6 +121,7 @@ def get_weather_forecast(location: str, date: Optional[str] = None) -> Dict[str,
             "source": "FarmGuardian Weather Service"
         }
 
+@log_tool_call
 def diagnose_crop_disease(image_base64: str, crop_name: Optional[str] = None) -> Dict[str, Any]:
     """Analyzes a base64 encoded crop image using Gemini Vision to diagnose disease, pest, or weed issues.
     Provides detailed treatment plans, organic alternatives, and recovery estimates.
@@ -119,8 +140,8 @@ def diagnose_crop_disease(image_base64: str, crop_name: Optional[str] = None) ->
         # Call Gemini Vision model
         client = get_genai_client()
         # We can use gemini-2.5-flash or gemini-1.5-flash.
-        # Let's list available models or use gemini-1.5-flash which is widely compatible
-        model_name = "gemini-1.5-flash"
+        # Let's list available models or use gemini-2.5-flash which is widely compatible
+        model_name = "gemini-2.5-flash"
         
         prompt = """
         You are a senior plant pathologist (Crop Doctor Agent).
@@ -191,6 +212,7 @@ def diagnose_crop_disease(image_base64: str, crop_name: Optional[str] = None) ->
                 "recovery_timeline": "7-10 days."
             }
 
+@log_tool_call
 def search_government_schemes(crop: str, state: str) -> Dict[str, Any]:
     """Searches web/Tavily or agricultural database for government subsidies, agricultural schemes,
     and insurance schemes matching the crop and region.
@@ -272,6 +294,7 @@ def search_government_schemes(crop: str, state: str) -> Dict[str, Any]:
         "source": "National Agricultural Portal (Offline Knowledge Base)"
     }
 
+@log_tool_call
 def calculate_fertilizer_and_soil(crop: str, acreage: float, soil_type: str = "loamy") -> Dict[str, Any]:
     """Calculates custom N-P-K (Nitrogen, Phosphorus, Potassium) fertilizer schedules,
     recommends dosages, and provides organic alternatives for soil health improvement.
@@ -347,6 +370,7 @@ def calculate_fertilizer_and_soil(crop: str, acreage: float, soil_type: str = "l
         "organic_alternatives": "Incorporate Farm Yard Manure (FYM) or Vermicompost. Apply Neem Cake (100 kg/acre) to control root nematodes and act as slow-release N."
     }
 
+@log_tool_call
 def search_market_prices(crop: str, location: str) -> Dict[str, Any]:
     """Retrieves current wholesale prices (Mandi prices) in nearby markets for the crop,
     recommends the best times to sell, and analyzes price trends.
@@ -398,6 +422,7 @@ def search_market_prices(crop: str, location: str) -> Dict[str, Any]:
         "advice": "Ensure moisture content is below 14% for grains (paddy) to avoid price deductions. For tomatoes, grade them by size and color to demand higher prices from retail traders."
     }
 
+@log_tool_call
 def recommend_irrigation(crop: str, stage: str, rain_forecast: str) -> Dict[str, Any]:
     """Generates a watering schedule based on crop growth stage and upcoming rain forecast.
 
@@ -453,6 +478,7 @@ def recommend_irrigation(crop: str, stage: str, rain_forecast: str) -> Dict[str,
         "drip_sprinkler_tip": "Use mulching to conserve moisture."
     }
 
+@log_tool_call
 def schedule_calendar_reminder(event_title: str, event_date: str, description: str, tool_context: Optional[ToolContext] = None) -> Dict[str, Any]:
     """Schedules a calendar reminder for a specific farming activity (e.g. fertilizer dose, follow-up check).
     Demonstrates Calendar MCP tool integration.
@@ -481,6 +507,7 @@ def schedule_calendar_reminder(event_title: str, event_date: str, description: s
 
     return reminder_log
 
+@log_tool_call
 def save_to_drive(filename: str, report_content: str, tool_context: Optional[ToolContext] = None) -> Dict[str, Any]:
     """Saves the generated weekly crop plan or diagnosis report to the farmer's Google Drive.
     Demonstrates Drive MCP tool integration.
@@ -509,6 +536,7 @@ def save_to_drive(filename: str, report_content: str, tool_context: Optional[Too
 
     return drive_log
 
+@log_tool_call
 def request_human_confirmation(action_type: str, details: str, tool_context: Optional[ToolContext] = None) -> Dict[str, Any]:
     """Requests explicit human/farmer confirmation before executing critical actions
     like chemical spray recommendations or submitting subsidy applications.

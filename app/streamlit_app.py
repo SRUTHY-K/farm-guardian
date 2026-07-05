@@ -6,11 +6,19 @@ import datetime
 import time
 from PIL import Image
 import io
+import logging
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from app.agent import root_agent
+from app.app_utils.localization import get_translations
+from app.app_utils.styles import inject_custom_css
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger("farm_guardian.app")
+logger.info("Initializing FarmGuardian Streamlit Application...")
 
 # Set Streamlit Page Configuration
 st.set_page_config(
@@ -20,309 +28,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Sleek Green, Dark Mode & Glassmorphic CSS Styling (Mobile Responsive)
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Outfit', sans-serif;
-    }
-    
-    .main-title {
-        font-size: 2.8rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #1e5233 0%, #34a853 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.1rem;
-    }
-    
-    .tagline {
-        font-size: 1.1rem;
-        color: #64748b;
-        margin-bottom: 1.5rem;
-        font-weight: 300;
-    }
-    
-    /* Card design */
-    .dashboard-card {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(12px);
-        padding: 1.25rem;
-        border-radius: 14px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 1rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-    }
-    
-    .card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1e293b;
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    /* Agent Node & Color Coding CSS */
-    .agent-node {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin: 0.25rem 0;
-        border: 1px solid rgba(0,0,0,0.08);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .agent-inactive { border-left: 5px solid #cbd5e1; background-color: #f8fafc; color: #64748b; }
-    
-    /* Specific Agent Colors */
-    .badge-coordinator { border-left: 5px solid #64748b; background-color: #f1f5f9; color: #475569; }
-    .badge-crop_doctor { border-left: 5px solid #22c55e; background-color: #hn0fdf4; color: #166534; background-color: #f0fdf4; }
-    .badge-weather { border-left: 5px solid #3b82f6; background-color: #eff6ff; color: #1d4ed8; }
-    .badge-market { border-left: 5px solid #f97316; background-color: #fff7ed; color: #c2410c; }
-    .badge-planner { border-left: 5px solid #a855f7; background-color: #faf5ff; color: #6b21a8; }
-    .badge-fertilizer { border-left: 5px solid #eab308; background-color: #fefce8; color: #854d0e; }
-    .badge-irrigation { border-left: 5px solid #3b82f6; background-color: #eff6ff; color: #1d4ed8; }
-    
-    /* Trajectory arrow */
-    .trajectory-step {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.4rem 0.8rem;
-        border-radius: 6px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        margin: 0.2rem 0;
-        font-size: 0.85rem;
-    }
-    
-    /* Skill pill */
-    .skill-pill {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.25rem 0.6rem;
-        background-color: #f1f5f9;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #475569;
-        border: 1px solid #e2e8f0;
-        margin: 0.15rem;
-    }
-    
-    .skill-active { background-color: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
-
-    /* Timeline visual flow */
-    .timeline-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f8fafc;
-        padding: 0.75rem;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        margin-top: 0.5rem;
-        overflow-x: auto;
-    }
-    
-    .timeline-node {
-        text-align: center;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #475569;
-        padding: 0.25rem 0.5rem;
-        border-radius: 6px;
-        background: white;
-        border: 1px solid #e2e8f0;
-        min-width: 65px;
-    }
-    
-    .timeline-node.active {
-        background: #dcfce7;
-        color: #15803d;
-        border-color: #bbf7d0;
-    }
-
-    .timeline-arrow {
-        color: #cbd5e1;
-        font-weight: bold;
-        font-size: 0.9rem;
-    }
-
-    /* Metrics panel formatting */
-    .metric-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #0f766e;
-    }
-    
-    .metric-sub {
-        font-size: 0.8rem;
-        color: #64748b;
-    }
-    
-    .chat-bubble {
-        padding: 1rem 1.2rem;
-        border-radius: 16px;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        line-height: 1.6;
-    }
-    
-    .user-bubble {
-        background-color: #f1f5f9;
-        color: #1e293b;
-        border-bottom-right-radius: 4px;
-    }
-    
-    .agent-bubble {
-        background-color: #f0fdf4;
-        color: #0f5132;
-        border: 1px solid #d1e7dd;
-        border-bottom-left-radius: 4px;
-    }
-
-    .hitl-alert {
-        background-color: #fffbeb;
-        border: 1px solid #fef3c7;
-        color: #92400e;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
-        border-left: 5px solid #d97706;
-    }
-
-    .pulse {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #22c55e;
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 1);
-        margin-right: 8px;
-        animation: pulse-animation 2s infinite;
-    }
-
-    @keyframes pulse-animation {
-        0% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-        }
-        70% {
-            transform: scale(1);
-            box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
-        }
-        100% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-        }
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Localization dictionary for English, Hindi, and Marathi
-LOCALIZATION = {
-    "English": {
-        "title": "FarmGuardian AI",
-        "tagline": "An intelligent farming companion that plans, monitors, diagnoses, and protects smallholders throughout the crop lifecycle.",
-        "profile": "🌾 Farmer Profile (Context)",
-        "name": "Farmer Name",
-        "location": "Farming Location / District",
-        "acreage": "Land Size (Acres)",
-        "crop": "Active Crop",
-        "soil": "Soil Type",
-        "lang": "Preferred Language",
-        "chat_header": "💬 Farm Consultation Desk",
-        "upload_label": "📸 Upload crop image (Leaf / Spot / Pest / Weed)",
-        "upload_placeholder": "Choose a photo from your field",
-        "chat_placeholder": "Ask crop symptoms, weather plans, mandi rates...",
-        "send_btn": "Send to Agentic Network",
-        "welcome": "👋 **Namaste {name}!** How can I assist you with your **{crop}** crop in **{location}** today?",
-        "agent_viz": "⛓️ Agentic Orchestration Visualizer",
-        "trajectory": "🕵️‍♂️ Reasoning/Agent Trajectory",
-        "skills_header": "✓ Dynamic Skills Activation",
-        "decision_header": "📊 Agricultural Decision Support",
-        "weather_card": "🌦️ Weather Forecast",
-        "market_card": "💰 Mandi Price Watch",
-        "economics": "💸 Treatment Economics",
-        "explain": "🔍 Diagnostic Explainability",
-        "weekly": "📅 Interactive Weekly Planner",
-        "timeline": "⏱️ Crop Care Timeline",
-        "security": "🛡️ Security & Archiving Vault",
-        "pending_hitl": "⚠️ Human confirmation required",
-        "confirm_btn": "✅ Approve Action",
-        "reject_btn": "❌ Reject Action"
-    },
-    "Hindi (हिन्दी)": {
-        "title": "फार्मगार्जियन एआई",
-        "tagline": "एक बुद्धिमान कृषि साथी जो फसल चक्र के दौरान छोटे किसानों की योजना, निगरानी, निदान और सुरक्षा करता है।",
-        "profile": "🌾 किसान प्रोफ़ाइल (संदर्भ)",
-        "name": "किसान का नाम",
-        "location": "कृषि स्थान / जिला",
-        "acreage": "भूमि का आकार (एकड़)",
-        "crop": "सक्रिय फसल",
-        "soil": "मिट्टी का प्रकार",
-        "lang": "पसंदीदा भाषा",
-        "chat_header": "💬 कृषि परामर्श डेस्क",
-        "upload_label": "📸 फसल की छवि अपलोड करें (पत्ता / धब्बा / कीट / खरपतवार)",
-        "upload_placeholder": "अपने खेत से एक फोटो चुनें",
-        "chat_placeholder": "रोगों, मौसम, उर्वरकों, बाजार की कीमतों या सब्सिडी के बारे में पूछें...",
-        "send_btn": "एजेंट नेटवर्क को भेजें",
-        "welcome": "👋 **नमस्ते {name}!** आज मैं आपकी **{location}** में **{crop}** की फसल के लिए किस प्रकार सहायता कर सकता हूँ?",
-        "agent_viz": "⛓️ एजेंट ऑर्केस्ट्रेशन विजुअलाइज़र",
-        "trajectory": "🕵️‍♂️ एजेंट तर्क/प्रक्षेपवक्र",
-        "skills_header": "✓ गतिशील कौशल सक्रियण",
-        "decision_header": "📊 कृषि निर्णय सहायता",
-        "weather_card": "🌦️ मौसम पूर्वानुमान",
-        "market_card": "💰 मंडी दरें",
-        "economics": "💸 उपचार अर्थशास्त्र",
-        "explain": "🔍 नैदानिक व्याख्या",
-        "weekly": "📅 इंटरैक्टिव साप्ताहिक योजना",
-        "timeline": "⏱️ फसल देखभाल समयरेखा",
-        "security": "🛡️ सुरक्षा और संग्रह वॉल्ट",
-        "pending_hitl": "⚠️ मानव पुष्टि आवश्यक है",
-        "confirm_btn": "✅ कार्रवाई स्वीकृत करें",
-        "reject_btn": "❌ कार्रवाई अस्वीकार करें"
-    },
-    "Marathi (मराठी)": {
-        "title": "फार्मगार्डियन एआई (FarmGuardian AI)",
-        "tagline": "एक बुद्धिमान कृषी सहकारी जो पीक जीवनचक्रादरम्यान लहान शेतकऱ्यांचे नियोजन, निरीक्षण, निदान आणि संरक्षण करतो.",
-        "profile": "🌾 शेतकरी प्रोफाइल (संदर्भ)",
-        "name": "शेतकऱ्याचे नाव",
-        "location": "शेतीचे ठिकाण / जिल्हा",
-        "acreage": "जमिनीचा आकार (एकर)",
-        "crop": "सक्रिय पीक",
-        "soil": "मातीचा प्रकार",
-        "lang": "पसंदीदा भाषा",
-        "chat_header": "💬 कृषी सल्लागार डेस्क",
-        "upload_label": "📸 पिकाचे चित्र अपलोड करा (पान / डाग / कीड / तण)",
-        "upload_placeholder": "तुमच्या शेतातून एक फोटो निवडा",
-        "chat_placeholder": "रोग, हवामान, खते, बाजारभाव किंवा अनुदानाबद्दल विचारा...",
-        "send_btn": "एजंट नेटवर्कवर पाठवा",
-        "welcome": "👋 **नमस्कार {name}!** आज मी तुम्हाला **{location}** मधील तुमच्या **{crop}** पिकासाठी कशी मदत करू शकतो?",
-        "agent_viz": "⛓️ एजंट ऑर्केस्ट्रेशन व्हिज्युअलायझर",
-        "trajectory": "🕵️‍♂️ एजंट तर्क/प्रक्षेपवक्र",
-        "skills_header": "✓ डायनॅमिक कौशल्ये सक्रियकरण",
-        "decision_header": "📊 कृषी निर्णय समर्थन",
-        "weather_card": "🌦️ हवामान अंदाज",
-        "market_card": "💰 बाजारभाव",
-        "economics": "💸 उपचार अर्थशास्त्र",
-        "explain": "🔍 निदान स्पष्टीकरण",
-        "weekly": "📅 परस्पर साप्ताहिक नियोजक",
-        "timeline": "⏱️ पीक काळजी टाइमलाइन",
-        "security": "🛡️ सुरक्षा आणि संग्रहण वॉल्ट",
-        "pending_hitl": "⚠️ मानवी मंजुरी आवश्यक आहे",
-        "confirm_btn": "✅ क्रिया मंजूर करा",
-        "reject_btn": "❌ क्रिया नाकारा"
-    }
-}
+# Inject custom CSS styling
+inject_custom_css()
 
 # Sidebar - Setup Preferred Language
 st.sidebar.image("https://cdn-icons-png.flaticon.com/512/2913/2913520.png", width=80)
@@ -332,7 +39,9 @@ preferred_lang = st.sidebar.selectbox("Preferred Language / पसंदीद�
     "Marathi (मराठी)"
 ])
 
-loc = LOCALIZATION[preferred_lang]
+
+# Load translations
+loc = get_translations(preferred_lang)
 
 # Sidebar - Settings & Farmer Profile (Memory/State)
 st.sidebar.markdown(f"### {loc['profile']}")
@@ -341,6 +50,19 @@ location = st.sidebar.text_input(loc["location"], "Pune, Maharashtra")
 acreage = st.sidebar.number_input(loc["acreage"], min_value=0.1, max_value=500.0, value=3.0, step=0.5)
 crop_type = st.sidebar.selectbox(loc["crop"], ["Paddy (Rice)", "Tomato", "Wheat", "Maize"])
 soil_type = st.sidebar.selectbox(loc["soil"], ["Loamy", "Sandy", "Clayey"])
+
+# Sidebar Course Attribution Footer
+st.sidebar.markdown("---")
+st.sidebar.markdown(
+    """
+    <div style="font-size: 0.85rem; color: #64748b; font-weight: 500; text-align: center; padding: 10px; background-color: rgba(241, 245, 249, 0.5); border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 15px;">
+        🎓 <b>Capstone Project</b><br>
+        5-Day AI Agents Intensive Vibe Coding Course<br>
+        <span style="color: #475569; font-weight: 600;">Google & Kaggle</span>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Core Application Header
 col_title, col_logo = st.columns([6, 1])
@@ -367,6 +89,20 @@ if "runner" not in st.session_state:
     )
 if "session_id" not in st.session_state:
     st.session_state.session_id = "farm_session_" + str(datetime.datetime.now().microsecond)
+
+# Register the session in the session service to prevent SessionNotFoundError
+session = st.session_state.session_service.get_session_sync(
+    app_name="app",
+    user_id=farmer_name,
+    session_id=st.session_state.session_id
+)
+if not session:
+    st.session_state.session_service.create_session_sync(
+        app_name="app",
+        user_id=farmer_name,
+        session_id=st.session_state.session_id
+    )
+
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -502,6 +238,7 @@ with left_col:
     if submit_btn and (user_input or uploaded_file):
         query_text = user_input or "Please diagnose this uploaded leaf image."
         st.session_state.chat_history.append(("User", query_text))
+        logger.info(f"New farm consult turn: Farmer={farmer_name}, Location={location}, Crop={crop_type}, Query='{query_text}'")
         
         # 1. Start the Live "Thinking" Animation progression
         thinking_placeholder = st.empty()
@@ -536,48 +273,50 @@ with left_col:
                 st.session_state.skills_activated["weekly_planner"] = True
                 
             thinking_placeholder.markdown(f"<div style='padding: 12px; background-color: #fef08a; border-left: 5px solid #eab308; border-radius: 8px; font-weight: bold; margin-bottom:1rem;'>{label}</div>", unsafe_allow_html=True)
-            time.sleep(0.7)
+            time.sleep(0.1)
             
         thinking_placeholder.empty()
 
-        # Prepare ADK payload
-        parts = []
-        if image_base64:
-            parts.append(types.Part.from_bytes(data=base64.b64decode(image_base64), mime_type="image/jpeg"))
-        parts.append(types.Part.from_text(text=f"Preferred Language: {preferred_lang}. Crop: {crop_type}. Location: {location}. Acreage: {acreage}. Soil: {soil_type}. Farmer name: {farmer_name}. Query: {query_text}"))
-        
-        new_message = types.Content(role="user", parts=parts)
-        
-        state_delta = {
-            "farmer_name": farmer_name,
-            "location": location,
-            "acreage": acreage,
-            "crop": crop_type,
-            "soil_type": soil_type,
-            "language": preferred_lang
-        }
-        
-        response_text = ""
-        try:
-            events = st.session_state.runner.run(
-                user_id=farmer_name,
-                session_id=st.session_state.session_id,
-                new_message=new_message,
-                state_delta=state_delta
-            )
-            for event in events:
-                if event.content and event.content.parts:
-                    for part in event.content.parts:
-                        if part.text:
-                            response_text += part.text
-        except Exception as e:
-            response_text = f"An error occurred during agent execution: {e}. Fallback advisor: Please consult local agricultural extension officer."
-        
-        if not response_text:
-            response_text = "I have noted the details. Let me know if you would like me to archive this plan."
+        # Prepare ADK payload and execute runner within a spinner loader
+        with st.spinner(loc.get("thinking_loader", "FarmGuardian AI is consulting specialists...")):
+            parts = []
+            if image_base64:
+                parts.append(types.Part.from_bytes(data=base64.b64decode(image_base64), mime_type="image/jpeg"))
+            parts.append(types.Part.from_text(text=f"Preferred Language: {preferred_lang}. Crop: {crop_type}. Location: {location}. Acreage: {acreage}. Soil: {soil_type}. Farmer name: {farmer_name}. Query: {query_text}"))
             
-        st.session_state.chat_history.append(("Agent", response_text))
-        
+            new_message = types.Content(role="user", parts=parts)
+            
+            state_delta = {
+                "farmer_name": farmer_name,
+                "location": location,
+                "acreage": acreage,
+                "crop": crop_type,
+                "soil_type": soil_type,
+                "language": preferred_lang
+            }
+            
+            response_text = ""
+            try:
+                logger.info(f"Invoking ADK runner with session_id='{st.session_state.session_id}' for user='{farmer_name}'...")
+                events = st.session_state.runner.run(
+                    user_id=farmer_name,
+                    session_id=st.session_state.session_id,
+                    new_message=new_message,
+                    state_delta=state_delta
+                )
+                for event in events:
+                    if event.content and event.content.parts:
+                        for part in event.content.parts:
+                            if part.text:
+                                response_text += part.text
+                logger.info(f"ADK runner finished execution successfully. Response length: {len(response_text)} characters.")
+            except Exception as e:
+                logger.error(f"ADK runner failed during execution: {e}", exc_info=True)
+                response_text = f"An error occurred during agent execution: {e}. Fallback advisor: Please consult local agricultural extension officer."
+            
+            if not response_text:
+                response_text = "I have noted the details. Let me know if you would like me to archive this plan."
+
         # Dynamically reset visualizer nodes to show only the agents that actually responded
         for node in st.session_state.agent_viz_state:
             if node != "findings":
@@ -606,6 +345,53 @@ with left_col:
         # 6. Planner / Reminders matching
         if any(w in r_low or w in q_low for w in ["save", "drive", "calendar", "reminder", "sync", "सहेज", "स्मरणपत्र", "कॅलेंडर"]):
             st.session_state.agent_viz_state["Planner Agent"] = "active"
+
+        active_nodes = [node for node, status in st.session_state.agent_viz_state.items() if status == "active" and node != "findings"]
+        logger.info(f"Routing evaluation completed. Active agents activated: {active_nodes}")
+
+        # Update timeline state dynamically based on active agents
+        if st.session_state.agent_viz_state["Market Agent"] == "active":
+            st.session_state.timeline_state = "Market"
+        elif st.session_state.agent_viz_state["Government Agent"] == "active":
+            st.session_state.timeline_state = "Harvest"
+        elif st.session_state.agent_viz_state["Finance & Soil Agent"] == "active" or st.session_state.agent_viz_state["Weather Agent"] == "active":
+            st.session_state.timeline_state = "Treatment"
+        elif st.session_state.agent_viz_state["Crop Doctor"] == "active":
+            st.session_state.timeline_state = "Diagnosis"
+
+        # Dynamically build weekly planner tasks based on active agents
+        dynamic_tasks = []
+        if st.session_state.agent_viz_state["Crop Doctor"] == "active":
+            dynamic_tasks.append({"day": "Monday", "task": "Monitor crop for leaf spots, mold, or pest damage", "done": False})
+            dynamic_tasks.append({"day": "Tuesday", "task": "Apply organic/biological treatment (e.g. neem oil, copper fungicide)", "done": False})
+        
+        if st.session_state.agent_viz_state["Weather Agent"] == "active":
+            if "rain" in r_low or "paddy" in r_low:
+                dynamic_tasks.append({"day": "Wednesday", "task": "Adjust irrigation schedule according to rain forecast", "done": False})
+            else:
+                dynamic_tasks.append({"day": "Wednesday", "task": "Check soil moisture level and run drip irrigation", "done": False})
+        
+        if st.session_state.agent_viz_state["Finance & Soil Agent"] == "active":
+            dynamic_tasks.append({"day": "Thursday", "task": "Calculate and apply split dosage of N-P-K fertilizers", "done": False})
+            dynamic_tasks.append({"day": "Friday", "task": "Add organic compost/vermicompost to improve soil biology", "done": False})
+            
+        if st.session_state.agent_viz_state["Government Agent"] == "active":
+            dynamic_tasks.append({"day": "Saturday", "task": "Prepare required land records/documents for subsidy application", "done": False})
+            dynamic_tasks.append({"day": "Sunday", "task": "Submit subsidy application draft for approval", "done": False})
+
+        if st.session_state.agent_viz_state["Market Agent"] == "active":
+            dynamic_tasks.append({"day": "Saturday", "task": "Check wholesale Mandi prices and match buyer requirements", "done": False})
+            dynamic_tasks.append({"day": "Sunday", "task": "Grade crop quality and transport to nearest high-paying market", "done": False})
+
+        if dynamic_tasks:
+            st.session_state.weekly_planner_table = dynamic_tasks
+            # Append planner summary directly to chat bubble response
+            planner_summary = "\n\n---\n📅 **Weekly Planner Updated:**\n"
+            for t in dynamic_tasks:
+                planner_summary += f"- **{t['day']}**: {t['task']}\n"
+            response_text += planner_summary
+
+        st.session_state.chat_history.append(("Agent", response_text))
 
         try:
             session = st.session_state.session_service.get_session(user_id=farmer_name, session_id=st.session_state.session_id)

@@ -7,29 +7,27 @@
 ## 🏗️ Multi-Agent Architecture
 
 ```
-                    Farmer
-                       │
-             Coordinator Agent (Router/Planner)
-                       │
- ┌──────────┬──────────┬──────────┬──────────┐
- │          │          │          │          │
-Crop     Weather    Market    Finance   Government
-Doctor    Agent      Agent      Agent      Agent
- │
-Soil Advisor
- │
-Planning Agent
- │
-Report Agent
+                                Farmer
+                                  │
+                       ┌──────────────────────┐
+                       │  Coordinator Agent   │
+                       └──────────┬───────────┘
+                                  │
+        ┌──────────────┬──────────┼──────────┬──────────────┬──────────────┐
+        │              │          │          │              │              │
+  ┌───────────┐  ┌───────────┐┌───────────┐┌───────────┐  ┌───────────┐  ┌───────────┐
+  │   Crop    │  │  Weather  ││  Market   ││ Finance & │  │Government │  │ Report &  │
+  │  Doctor   │  │   Agent   ││   Agent   ││Soil Agent │  │   Agent   │  │ Reminders │
+  └───────────┘  └───────────┘└───────────┘└───────────┘  └───────────┘  └───────────┘
 ```
 
-1. **Coordinator Agent**: Routes incoming queries to specialized sub-agents, manages language preferences, and orchestrates multi-step agricultural plans.
-2. **Crop Doctor Agent**: Performs multimodal crop disease, pest, and weed diagnosis from uploaded images using Gemini Vision.
-3. **Weather Agent**: Retrieves regional weather forecasts and issues warnings for frost, rain, or heat stress.
-4. **Market Agent**: Monitors wholesale market prices (Mandi rates) and suggests optimal days/locations to sell.
-5. **Finance Agent**: Recommends fertilizer scheduling (exact Urea, SSP, MOP bags per acre) and soil health improvements.
-6. **Government Agent**: Identifies subsidies, schemes, and insurance programs for which the farmer is eligible.
-7. **Report Agent**: Mock integrations for archiving diagnostic reports to Google Drive and scheduling crop care reminders in Google Calendar (MCP concept).
+1. **Coordinator Agent**: Parent router and planner. Detects query intent, manages language settings, and orchestrates multi-step agricultural plans across sub-agents.
+2. **Crop Doctor Agent**: Diagnoses crop diseases, pests, and weed issues from uploaded leaf images using Gemini Vision.
+3. **Weather Agent**: Retrieves regional weather forecasts and generates rain-adjusted watering recommendations.
+4. **Market Agent**: Monitors wholesale market prices (Mandi rates) and recommends selling strategies.
+5. **Finance & Soil Agent**: Recommends N-P-K fertilizer schedules based on soil type and land acreage.
+6. **Government Agent**: Identifies regional subsidies (e.g. drip irrigation, solar pumps) and insurance programs.
+7. **Report & Reminders Agent**: Handles productivity tasks like saving crop plans to Google Drive and scheduling follow-up fertilizer reminders in Google Calendar.
 
 ---
 

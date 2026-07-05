@@ -47,9 +47,23 @@ if "GOOGLE_CLOUD_LOCATION" not in os.environ:
 if "GOOGLE_GENAI_USE_VERTEXAI" not in os.environ:
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
+from functools import cached_property
+
+class ConfiguredGemini(Gemini):
+    @cached_property
+    def api_client(self):
+        from google.genai import Client
+        vertexai = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI", "True") == "True"
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+        if vertexai:
+            return Client(vertexai=True, project=project, location=location)
+        else:
+            return Client(api_key=os.environ.get("GEMINI_API_KEY"))
+
 # Configure the LLM model
-llm_model = Gemini(
-    model="gemini-1.5-flash",
+llm_model = ConfiguredGemini(
+    model="gemini-2.5-flash",
     retry_options=types.HttpRetryOptions(attempts=3),
 )
 
