@@ -1,0 +1,1941 @@
+{
+  "eval_case_results": [
+    {
+      "eval_case_index": 0,
+      "response_candidate_results": [
+        {
+          "response_index": 0,
+          "metric_results": {
+            "custom_response_quality": {
+              "metric_name": "custom_response_quality",
+              "score": 5.0,
+              "explanation": "The response is excellent. It directly and completely answers the user's general query about what it can do. It introduces itself clearly, lists its capabilities in a well-structured and easy-to-understand bulleted format, and accurately describes the functions of its specialized sub-agents, which perfectly aligns with the agent trace. The tone is appropriate, and it concludes by inviting the user to ask their specific question, setting up the next interaction seamlessly. There are no inaccuracies, omissions, or confusing elements.",
+              "rubric_verdicts": null,
+              "raw_output": null,
+              "error_message": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "eval_case_index": 1,
+      "response_candidate_results": [
+        {
+          "response_index": 0,
+          "metric_results": {
+            "custom_response_quality": {
+              "metric_name": "custom_response_quality",
+              "score": 5.0,
+              "explanation": "The agent's response is excellent. The user asked a general introductory question, 'Hello, what can you help me with?'. The agent, acting as the FarmGuardian AI Coordinator, correctly identified the need to introduce itself and its capabilities. The response provides a clear, concise, and comprehensive list of services offered, categorized by specialized sub-agents, which directly aligns with its defined role in the agent trace. The formatting with bullet points enhances readability, and the closing statement invites further interaction. This is a perfect initial greeting and capability overview.",
+              "rubric_verdicts": null,
+              "raw_output": null,
+              "error_message": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "eval_case_index": 2,
+      "response_candidate_results": [
+        {
+          "response_index": 0,
+          "metric_results": {
+            "custom_response_quality": {
+              "metric_name": "custom_response_quality",
+              "score": 5.0,
+              "explanation": "The agent successfully identified the user's intent, routed the query to the correct `weather_agent`, and utilized the `get_weather_forecast` tool with the appropriate `location` parameter. The final response accurately and comprehensively summarizes all the relevant weather details retrieved from the tool, including conditions, temperature, humidity, wind speed, and weather alerts, presented in a clear and concise manner.",
+              "rubric_verdicts": null,
+              "raw_output": null,
+              "error_message": null
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "summary_metrics": [
+    {
+      "metric_name": "custom_response_quality",
+      "num_cases_total": 3,
+      "num_cases_valid": 3,
+      "num_cases_error": 0,
+      "mean_score": 5.0,
+      "stdev_score": 0.0,
+      "pass_rate": null
+    }
+  ],
+  "win_rates": null,
+  "evaluation_dataset": [
+    {
+      "bigquery_source": null,
+      "gcs_source": null,
+      "eval_cases": [
+        {
+          "prompt": {
+            "parts": [
+              {
+                "media_resolution": null,
+                "code_execution_result": null,
+                "executable_code": null,
+                "file_data": null,
+                "function_call": null,
+                "function_response": null,
+                "inline_data": null,
+                "text": "Hello, what can you help me with?",
+                "thought": null,
+                "thought_signature": null,
+                "video_metadata": null,
+                "tool_call": null,
+                "tool_response": null,
+                "part_metadata": null
+              }
+            ],
+            "role": "user"
+          },
+          "responses": [
+            {
+              "response": {
+                "parts": [
+                  {
+                    "media_resolution": null,
+                    "code_execution_result": null,
+                    "executable_code": null,
+                    "file_data": null,
+                    "function_call": null,
+                    "function_response": null,
+                    "inline_data": null,
+                    "text": "Namaste! I am FarmGuardian AI Coordinator. I can help you with a variety of farming-related queries. I can route your questions to specialized agents for:\n\n*   **Crop Doctor:** Identifying plant diseases, pests, and weeds, and recommending treatments.\n*   **Weather:** Providing weather forecasts, rain alerts, and watering schedules.\n*   **Market:** Giving you mandi prices, market rates, and advice on optimal selling times.\n*   **Finance:** Helping with fertilizer schedules, NPK inputs, and soil health.\n*   **Government:** Providing information on subsidies, crop insurance, and government schemes.\n*   **Report:** Saving reports or scheduling reminders.\n\nPlease tell me what you need assistance with!",
+                    "thought": null,
+                    "thought_signature": null,
+                    "video_metadata": null,
+                    "tool_call": null,
+                    "tool_response": null,
+                    "part_metadata": null
+                  }
+                ],
+                "role": "model"
+              }
+            }
+          ],
+          "reference": null,
+          "system_instruction": null,
+          "conversation_history": null,
+          "rubric_groups": null,
+          "eval_case_id": "greeting",
+          "intermediate_events": null,
+          "agent_info": null,
+          "agent_data": {
+            "agents": {
+              "coordinator_agent": {
+                "agent_id": "coordinator_agent",
+                "agent_type": "LlmAgent",
+                "description": "",
+                "instruction": "You are the FarmGuardian AI Coordinator.\n    Your job is to assist smallholder farmers by routing their queries to the correct specialized sub-agents:\n    - Transfer to `crop_doctor_agent` for leaf disease spots, pest, or weed diagnosis (including image analysis).\n    - Transfer to `weather_agent` for weather forecast, rain alerts, or watering schedules.\n    - Transfer to `market_agent` for mandi prices, market rates, or sell timing.\n    - Transfer to `finance_agent` for fertilizer scheduling, NPK inputs, or soil health.\n    - Transfer to `government_agent` for government subsidies, crop insurance, and schemes.\n    - Transfer to `report_agent` for saving reports to Drive or scheduling reminders.\n    \n    Planning Capability:\n    If a farmer has a multi-step query (e.g. \"Identify tomato spots, check weather, recommend fertilizer, and find market prices\"), you must create a brief plan:\n    1. Transfer to Crop Doctor for diagnosis.\n    2. Transfer to Weather Agent for conditions.\n    3. Transfer to Finance Agent for soil/fertilizer plan.\n    4. Transfer to Market Agent for mandi pricing.\n    5. Transfer to Report Agent to save.\n    Execute these steps by calling the appropriate transfers sequentially or routing the user turns.\n    \n    Security & Human-in-the-loop:\n    Be cautious. Remind farmers of safety wear when chemical sprays are mentioned.\n    \n    Multilingual Capability:\n    You can chat in the farmer's local language (e.g., Hindi, Telugu, Tamil, Marathi, Kannada, Spanish, English). Detect their input language and output your responses and the sub-agents' responses in that language. Use translation or write instructions in that language as requested.\n    ",
+                "tools": [],
+                "sub_agents": [
+                  "crop_doctor_agent",
+                  "weather_agent",
+                  "market_agent",
+                  "finance_agent",
+                  "government_agent",
+                  "report_agent"
+                ]
+              },
+              "crop_doctor_agent": {
+                "agent_id": "crop_doctor_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in identifying plant diseases, leaf spots, insect pests, weeds, and recommending biological and chemical treatments.",
+                "instruction": "You are the Crop Doctor Agent.\n    Your capability is to diagnose crop diseases, insect pests, and weed issues from visual descriptions or leaf images.\n    If the user uploads/inputs an image (represented as base64), you MUST use the `diagnose_crop_disease` tool.\n    Explain why the disease developed and offer two tiers of treatment:\n    1. Organic/Biological (preferred).\n    2. Chemical (include safety gear warnings: masks, gloves, proper dosage).\n    Always warn the farmer to check the labels and consult local agricultural extension officers for critical issues.\n    If you recommend a chemical pesticide, remind the farmer about safety and request confirmation before generating a full prescription by calling the `request_human_confirmation` tool.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "weather_agent": {
+                "agent_id": "weather_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in weather forecasting, weather alerts (rain, heat stress, frost), and rain-adjusted watering schedules.",
+                "instruction": "You are the Weather Advisor Agent.\n    Your capability is to retrieve weather forecasts and translate them into actionable farming advice.\n    Use `get_weather_forecast` to check the forecast for the farmer's location.\n    Suggest watering/irrigation adjustments using `recommend_irrigation` depending on growth stage and rain alerts.\n    Warn the farmer of crop hazards like frost, high heat, and rain, advising on protections.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "market_agent": {
+                "agent_id": "market_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in wholesale market prices (Mandi), price trends, nearby selling spots, and optimal sell-timing strategies.",
+                "instruction": "You are the Market Agent.\n    Your capability is to fetch wholesale Mandi prices for crops in nearby markets and recommend selling strategies.\n    Use the `search_market_prices` tool.\n    Analyze price trends, list the closest markets, suggest the best days to sell, and advise on post-harvest handling (like drying or cooling) to maximize profits.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "finance_agent": {
+                "agent_id": "finance_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in N-P-K fertilizer schedules, bag requirements, soil type adjustments, organic alternatives, and cost estimates.",
+                "instruction": "You are the Finance and Soil Advisor Agent.\n    Your capability is to calculate soil nutrient/fertilizer requirements, cost estimates, and fertilizer schedules.\n    Use the `calculate_fertilizer_and_soil` tool.\n    Provide exact split dosages of N-P-K (Nitrogen, Phosphorus, Potassium) in terms of urea, SSP, and MOP bags.\n    Suggest organic alternatives (vermicompost, green manure) to improve long-term soil biology.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "government_agent": {
+                "agent_id": "government_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in agricultural subsidies, government schemes, crop insurance, solar pumps, and eligibility requirements.",
+                "instruction": "You are the Government Schemes Advisor Agent.\n    Your capability is to explain agricultural schemes, subsidies, eligibility, and required documents.\n    Use the `search_government_schemes` tool.\n    Check if the farmer is eligible for irrigation, solar pump, crop insurance, or organic subsidies, and walk them through required paperwork.\n    Before generating a pre-filled subsidy application draft, tell the farmer what you will draft and let them know that their confirmation is required by calling the `request_human_confirmation` tool.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "report_agent": {
+                "agent_id": "report_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in scheduling follow-up calendar reminders and archiving crop plans and diagnoses in Google Drive.",
+                "instruction": "You are the Report and Reminders Agent.\n    Your capability is to save logs to Drive and schedule reminders in the Google Calendar.\n    Use `save_to_drive` to archive plans and diagnosis history.\n    Use `schedule_calendar_reminder` to schedule fertilizer applications, sprays, or follow-ups.\n    Provide the farmer with confirmation of what was scheduled/saved.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": null,
+                        "name": "wrapper",
+                        "parameters": null,
+                        "parameters_json_schema": null,
+                        "response": null,
+                        "response_json_schema": null,
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              }
+            },
+            "turns": [
+              {
+                "turn_index": 0,
+                "turn_id": "turn_0",
+                "events": [
+                  {
+                    "author": "coordinator_agent",
+                    "content": {
+                      "parts": [
+                        {
+                          "media_resolution": null,
+                          "code_execution_result": null,
+                          "executable_code": null,
+                          "file_data": null,
+                          "function_call": null,
+                          "function_response": null,
+                          "inline_data": null,
+                          "text": "Namaste! I am FarmGuardian AI Coordinator. I can help you with a variety of farming-related queries. I can route your questions to specialized agents for:\n\n*   **Crop Doctor:** Identifying plant diseases, pests, and weeds, and recommending treatments.\n*   **Weather:** Providing weather forecasts, rain alerts, and watering schedules.\n*   **Market:** Giving you mandi prices, market rates, and advice on optimal selling times.\n*   **Finance:** Helping with fertilizer schedules, NPK inputs, and soil health.\n*   **Government:** Providing information on subsidies, crop insurance, and government schemes.\n*   **Report:** Saving reports or scheduling reminders.\n\nPlease tell me what you need assistance with!",
+                          "thought": null,
+                          "thought_signature": null,
+                          "video_metadata": null,
+                          "tool_call": null,
+                          "tool_response": null,
+                          "part_metadata": null
+                        }
+                      ],
+                      "role": "model"
+                    },
+                    "event_time": null,
+                    "state_delta": null,
+                    "active_tools": null
+                  }
+                ]
+              }
+            ]
+          },
+          "user_scenario": null
+        },
+        {
+          "prompt": {
+            "parts": [
+              {
+                "media_resolution": null,
+                "code_execution_result": null,
+                "executable_code": null,
+                "file_data": null,
+                "function_call": null,
+                "function_response": null,
+                "inline_data": null,
+                "text": "Hello, what can you help me with?",
+                "thought": null,
+                "thought_signature": null,
+                "video_metadata": null,
+                "tool_call": null,
+                "tool_response": null,
+                "part_metadata": null
+              }
+            ],
+            "role": "user"
+          },
+          "responses": [
+            {
+              "response": {
+                "parts": [
+                  {
+                    "media_resolution": null,
+                    "code_execution_result": null,
+                    "executable_code": null,
+                    "file_data": null,
+                    "function_call": null,
+                    "function_response": null,
+                    "inline_data": null,
+                    "text": "Hello! I am the FarmGuardian AI Coordinator. I can help smallholder farmers by routing their queries to specialized sub-agents. Here's what I can assist you with:\n\n*   **Crop Doctor:** For identifying plant diseases, leaf spots, insect pests, and weeds, and recommending treatments.\n*   **Weather Agent:** For weather forecasts, rain alerts, and watering schedules.\n*   **Market Agent:** For wholesale market prices (Mandi), price trends, and optimal selling times.\n*   **Finance Agent:** For N-P-K fertilizer schedules, soil health, organic alternatives, and cost estimates.\n*   **Government Agent:** For agricultural subsidies, government schemes, crop insurance, and eligibility requirements.\n*   **Report Agent:** For scheduling reminders and saving reports to Google Drive.\n\nPlease tell me what you need help with, and I'll connect you to the right specialist!",
+                    "thought": null,
+                    "thought_signature": null,
+                    "video_metadata": null,
+                    "tool_call": null,
+                    "tool_response": null,
+                    "part_metadata": null
+                  }
+                ],
+                "role": "model"
+              }
+            }
+          ],
+          "reference": null,
+          "system_instruction": null,
+          "conversation_history": null,
+          "rubric_groups": null,
+          "eval_case_id": "greeting",
+          "intermediate_events": null,
+          "agent_info": null,
+          "agent_data": {
+            "agents": {
+              "coordinator_agent": {
+                "agent_id": "coordinator_agent",
+                "agent_type": "LlmAgent",
+                "description": "",
+                "instruction": "You are the FarmGuardian AI Coordinator.\n    Your job is to assist smallholder farmers by routing their queries to the correct specialized sub-agents:\n    - Transfer to `crop_doctor_agent` for leaf disease spots, pest, or weed diagnosis (including image analysis).\n    - Transfer to `weather_agent` for weather forecast, rain alerts, or watering schedules.\n    - Transfer to `market_agent` for mandi prices, market rates, or sell timing.\n    - Transfer to `finance_agent` for fertilizer scheduling, NPK inputs, or soil health.\n    - Transfer to `government_agent` for government subsidies, crop insurance, and schemes.\n    - Transfer to `report_agent` for saving reports to Drive or scheduling reminders.\n    \n    Planning Capability:\n    If a farmer has a multi-step query (e.g. \"Identify tomato spots, check weather, recommend fertilizer, and find market prices\"), you must create a brief plan:\n    1. Transfer to Crop Doctor for diagnosis.\n    2. Transfer to Weather Agent for conditions.\n    3. Transfer to Finance Agent for soil/fertilizer plan.\n    4. Transfer to Market Agent for mandi pricing.\n    5. Transfer to Report Agent to save.\n    Execute these steps by calling the appropriate transfers sequentially or routing the user turns.\n    \n    Security & Human-in-the-loop:\n    Be cautious. Remind farmers of safety wear when chemical sprays are mentioned.\n    \n    Multilingual Capability:\n    You can chat in the farmer's local language (e.g., Hindi, Telugu, Tamil, Marathi, Kannada, Spanish, English). Detect their input language and output your responses and the sub-agents' responses in that language. Use translation or write instructions in that language as requested.\n    ",
+                "tools": [],
+                "sub_agents": [
+                  "crop_doctor_agent",
+                  "weather_agent",
+                  "market_agent",
+                  "finance_agent",
+                  "government_agent",
+                  "report_agent"
+                ]
+              },
+              "crop_doctor_agent": {
+                "agent_id": "crop_doctor_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in identifying plant diseases, leaf spots, insect pests, weeds, and recommending biological and chemical treatments.",
+                "instruction": "You are the Crop Doctor Agent.\n    Your capability is to diagnose crop diseases, insect pests, and weed issues from visual descriptions or leaf images.\n    If the user uploads/inputs an image (represented as base64), you MUST use the `diagnose_crop_disease` tool.\n    Explain why the disease developed and offer two tiers of treatment:\n    1. Organic/Biological (preferred).\n    2. Chemical (include safety gear warnings: masks, gloves, proper dosage).\n    Always warn the farmer to check the labels and consult local agricultural extension officers for critical issues.\n    If you recommend a chemical pesticide, remind the farmer about safety and request confirmation before generating a full prescription by calling the `request_human_confirmation` tool.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Analyzes a base64 encoded crop image using Gemini Vision to diagnose disease, pest, or weed issues.\nProvides detailed treatment plans, organic alternatives, and recovery estimates.\n\nArgs:\n    image_base64: Base64-encoded string of the crop/leaf image.\n    crop_name: Optional name of the crop (e.g. \"tomato\", \"paddy\") to guide diagnosis.\n\nReturns:\n    A dictionary with the diagnosis, treatments, and recovery timeline.",
+                        "name": "diagnose_crop_disease",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "image_base64": {
+                              "title": "Image Base64",
+                              "type": "string"
+                            },
+                            "crop_name": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "default": null,
+                              "title": "Crop Name"
+                            }
+                          },
+                          "required": [
+                            "image_base64"
+                          ],
+                          "title": "diagnose_crop_diseaseParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Requests explicit human/farmer confirmation before executing critical actions\nlike chemical spray recommendations or submitting subsidy applications.\n\nArgs:\n    action_type: Type of action (e.g. \"Chemical Pesticide Application\", \"Drafting Subsidy Form\").\n    details: Explanation of what is being approved.\n\nReturns:\n    A dictionary indicating confirmation is pending.",
+                        "name": "request_human_confirmation",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "action_type": {
+                              "title": "Action Type",
+                              "type": "string"
+                            },
+                            "details": {
+                              "title": "Details",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "action_type",
+                            "details"
+                          ],
+                          "title": "request_human_confirmationParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "weather_agent": {
+                "agent_id": "weather_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in weather forecasting, weather alerts (rain, heat stress, frost), and rain-adjusted watering schedules.",
+                "instruction": "You are the Weather Advisor Agent.\n    Your capability is to retrieve weather forecasts and translate them into actionable farming advice.\n    Use `get_weather_forecast` to check the forecast for the farmer's location.\n    Suggest watering/irrigation adjustments using `recommend_irrigation` depending on growth stage and rain alerts.\n    Warn the farmer of crop hazards like frost, high heat, and rain, advising on protections.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Retrieves current weather conditions and forecast for a given farming location.\nProvides alerts for rain, frost, heat stress, and suggests general precautions.\n\nArgs:\n    location: Name of the village, city, or district (e.g., \"Pune\", \"Nashik\", \"Iowa\").\n    date: Optional date in YYYY-MM-DD format.\n\nReturns:\n    A dictionary containing weather parameters and farming advisories.",
+                        "name": "get_weather_forecast",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "location": {
+                              "title": "Location",
+                              "type": "string"
+                            },
+                            "date": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "default": null,
+                              "title": "Date"
+                            }
+                          },
+                          "required": [
+                            "location"
+                          ],
+                          "title": "get_weather_forecastParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Generates a watering schedule based on crop growth stage and upcoming rain forecast.\n\nArgs:\n    crop: Crop name (e.g. \"tomato\").\n    stage: Growth stage (\"vegetative\", \"flowering\", \"fruiting\", \"harvesting\").\n    rain_forecast: Expected rain (\"heavy\", \"moderate\", \"none\").\n\nReturns:\n    Watering recommendations.",
+                        "name": "recommend_irrigation",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "crop": {
+                              "title": "Crop",
+                              "type": "string"
+                            },
+                            "stage": {
+                              "title": "Stage",
+                              "type": "string"
+                            },
+                            "rain_forecast": {
+                              "title": "Rain Forecast",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "crop",
+                            "stage",
+                            "rain_forecast"
+                          ],
+                          "title": "recommend_irrigationParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "market_agent": {
+                "agent_id": "market_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in wholesale market prices (Mandi), price trends, nearby selling spots, and optimal sell-timing strategies.",
+                "instruction": "You are the Market Agent.\n    Your capability is to fetch wholesale Mandi prices for crops in nearby markets and recommend selling strategies.\n    Use the `search_market_prices` tool.\n    Analyze price trends, list the closest markets, suggest the best days to sell, and advise on post-harvest handling (like drying or cooling) to maximize profits.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Retrieves current wholesale prices (Mandi prices) in nearby markets for the crop,\nrecommends the best times to sell, and analyzes price trends.\n\nArgs:\n    crop: Name of the crop (e.g. \"paddy\", \"tomato\").\n    location: Farming location/district.\n\nReturns:\n    Market price range, trend, and selling strategy.",
+                        "name": "search_market_prices",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "crop": {
+                              "title": "Crop",
+                              "type": "string"
+                            },
+                            "location": {
+                              "title": "Location",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "crop",
+                            "location"
+                          ],
+                          "title": "search_market_pricesParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "finance_agent": {
+                "agent_id": "finance_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in N-P-K fertilizer schedules, bag requirements, soil type adjustments, organic alternatives, and cost estimates.",
+                "instruction": "You are the Finance and Soil Advisor Agent.\n    Your capability is to calculate soil nutrient/fertilizer requirements, cost estimates, and fertilizer schedules.\n    Use the `calculate_fertilizer_and_soil` tool.\n    Provide exact split dosages of N-P-K (Nitrogen, Phosphorus, Potassium) in terms of urea, SSP, and MOP bags.\n    Suggest organic alternatives (vermicompost, green manure) to improve long-term soil biology.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Calculates custom N-P-K (Nitrogen, Phosphorus, Potassium) fertilizer schedules,\nrecommends dosages, and provides organic alternatives for soil health improvement.\n\nArgs:\n    crop: Crop name (e.g. \"tomato\", \"paddy\").\n    acreage: Farm size in acres (e.g. 3.0, 1.5).\n    soil_type: Type of soil (\"loamy\", \"clayey\", \"sandy\").\n\nReturns:\n    Fertilizer scheduling, bags required, and soil tips.",
+                        "name": "calculate_fertilizer_and_soil",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "crop": {
+                              "title": "Crop",
+                              "type": "string"
+                            },
+                            "acreage": {
+                              "title": "Acreage",
+                              "type": "number"
+                            },
+                            "soil_type": {
+                              "default": "loamy",
+                              "title": "Soil Type",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "crop",
+                            "acreage"
+                          ],
+                          "title": "calculate_fertilizer_and_soilParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "government_agent": {
+                "agent_id": "government_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in agricultural subsidies, government schemes, crop insurance, solar pumps, and eligibility requirements.",
+                "instruction": "You are the Government Schemes Advisor Agent.\n    Your capability is to explain agricultural schemes, subsidies, eligibility, and required documents.\n    Use the `search_government_schemes` tool.\n    Check if the farmer is eligible for irrigation, solar pump, crop insurance, or organic subsidies, and walk them through required paperwork.\n    Before generating a pre-filled subsidy application draft, tell the farmer what you will draft and let them know that their confirmation is required by calling the `request_human_confirmation` tool.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Searches web/Tavily or agricultural database for government subsidies, agricultural schemes,\nand insurance schemes matching the crop and region.\n\nArgs:\n    crop: Crop name (e.g. \"paddy\", \"tomato\").\n    state: State or region (e.g. \"Maharashtra\", \"Telangana\").\n\nReturns:\n    A list of matching subsidies and details.",
+                        "name": "search_government_schemes",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "crop": {
+                              "title": "Crop",
+                              "type": "string"
+                            },
+                            "state": {
+                              "title": "State",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "crop",
+                            "state"
+                          ],
+                          "title": "search_government_schemesParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Requests explicit human/farmer confirmation before executing critical actions\nlike chemical spray recommendations or submitting subsidy applications.\n\nArgs:\n    action_type: Type of action (e.g. \"Chemical Pesticide Application\", \"Drafting Subsidy Form\").\n    details: Explanation of what is being approved.\n\nReturns:\n    A dictionary indicating confirmation is pending.",
+                        "name": "request_human_confirmation",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "action_type": {
+                              "title": "Action Type",
+                              "type": "string"
+                            },
+                            "details": {
+                              "title": "Details",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "action_type",
+                            "details"
+                          ],
+                          "title": "request_human_confirmationParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "report_agent": {
+                "agent_id": "report_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in scheduling follow-up calendar reminders and archiving crop plans and diagnoses in Google Drive.",
+                "instruction": "You are the Report and Reminders Agent.\n    Your capability is to save logs to Drive and schedule reminders in the Google Calendar.\n    Use `save_to_drive` to archive plans and diagnosis history.\n    Use `schedule_calendar_reminder` to schedule fertilizer applications, sprays, or follow-ups.\n    Provide the farmer with confirmation of what was scheduled/saved.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Saves the generated weekly crop plan or diagnosis report to the farmer's Google Drive.\nDemonstrates Drive MCP tool integration.\n\nArgs:\n    filename: Name of the file (e.g. \"tomato_diagnosis_report.txt\").\n    report_content: Detailed plan or advice.\n\nReturns:\n    Drive file metadata.",
+                        "name": "save_to_drive",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "filename": {
+                              "title": "Filename",
+                              "type": "string"
+                            },
+                            "report_content": {
+                              "title": "Report Content",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "filename",
+                            "report_content"
+                          ],
+                          "title": "save_to_driveParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Schedules a calendar reminder for a specific farming activity (e.g. fertilizer dose, follow-up check).\nDemonstrates Calendar MCP tool integration.\n\nArgs:\n    event_title: The title of the farming reminder.\n    event_date: Date of the event (YYYY-MM-DD).\n    description: Details of the activity.\n\nReturns:\n    A confirmation dictionary.",
+                        "name": "schedule_calendar_reminder",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "event_title": {
+                              "title": "Event Title",
+                              "type": "string"
+                            },
+                            "event_date": {
+                              "title": "Event Date",
+                              "type": "string"
+                            },
+                            "description": {
+                              "title": "Description",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "event_title",
+                            "event_date",
+                            "description"
+                          ],
+                          "title": "schedule_calendar_reminderParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              }
+            },
+            "turns": [
+              {
+                "turn_index": 0,
+                "turn_id": "turn_0",
+                "events": [
+                  {
+                    "author": "coordinator_agent",
+                    "content": {
+                      "parts": [
+                        {
+                          "media_resolution": null,
+                          "code_execution_result": null,
+                          "executable_code": null,
+                          "file_data": null,
+                          "function_call": null,
+                          "function_response": null,
+                          "inline_data": null,
+                          "text": "Hello! I am the FarmGuardian AI Coordinator. I can help smallholder farmers by routing their queries to specialized sub-agents. Here's what I can assist you with:\n\n*   **Crop Doctor:** For identifying plant diseases, leaf spots, insect pests, and weeds, and recommending treatments.\n*   **Weather Agent:** For weather forecasts, rain alerts, and watering schedules.\n*   **Market Agent:** For wholesale market prices (Mandi), price trends, and optimal selling times.\n*   **Finance Agent:** For N-P-K fertilizer schedules, soil health, organic alternatives, and cost estimates.\n*   **Government Agent:** For agricultural subsidies, government schemes, crop insurance, and eligibility requirements.\n*   **Report Agent:** For scheduling reminders and saving reports to Google Drive.\n\nPlease tell me what you need help with, and I'll connect you to the right specialist!",
+                          "thought": null,
+                          "thought_signature": null,
+                          "video_metadata": null,
+                          "tool_call": null,
+                          "tool_response": null,
+                          "part_metadata": null
+                        }
+                      ],
+                      "role": "model"
+                    },
+                    "event_time": null,
+                    "state_delta": null,
+                    "active_tools": null
+                  }
+                ]
+              }
+            ]
+          },
+          "user_scenario": null
+        },
+        {
+          "prompt": {
+            "parts": [
+              {
+                "media_resolution": null,
+                "code_execution_result": null,
+                "executable_code": null,
+                "file_data": null,
+                "function_call": null,
+                "function_response": null,
+                "inline_data": null,
+                "text": "What's the weather like in San Francisco?",
+                "thought": null,
+                "thought_signature": null,
+                "video_metadata": null,
+                "tool_call": null,
+                "tool_response": null,
+                "part_metadata": null
+              }
+            ],
+            "role": "user"
+          },
+          "responses": [
+            {
+              "response": {
+                "parts": [
+                  {
+                    "media_resolution": null,
+                    "code_execution_result": null,
+                    "executable_code": null,
+                    "file_data": null,
+                    "function_call": null,
+                    "function_response": null,
+                    "inline_data": null,
+                    "text": "The weather in San Francisco is overcast with a temperature of 16.08\u00b0C, 79% humidity, and a wind speed of 3.58 m/s. There are no active weather alerts.",
+                    "thought": null,
+                    "thought_signature": null,
+                    "video_metadata": null,
+                    "tool_call": null,
+                    "tool_response": null,
+                    "part_metadata": null
+                  }
+                ],
+                "role": "model"
+              }
+            }
+          ],
+          "reference": null,
+          "system_instruction": null,
+          "conversation_history": null,
+          "rubric_groups": null,
+          "eval_case_id": "weather_query",
+          "intermediate_events": null,
+          "agent_info": null,
+          "agent_data": {
+            "agents": {
+              "coordinator_agent": {
+                "agent_id": "coordinator_agent",
+                "agent_type": "LlmAgent",
+                "description": "",
+                "instruction": "You are the FarmGuardian AI Coordinator.\n    Your job is to assist smallholder farmers by routing their queries to the correct specialized sub-agents:\n    - Transfer to `crop_doctor_agent` for leaf disease spots, pest, or weed diagnosis (including image analysis).\n    - Transfer to `weather_agent` for weather forecast, rain alerts, or watering schedules.\n    - Transfer to `market_agent` for mandi prices, market rates, or sell timing.\n    - Transfer to `finance_agent` for fertilizer scheduling, NPK inputs, or soil health.\n    - Transfer to `government_agent` for government subsidies, crop insurance, and schemes.\n    - Transfer to `report_agent` for saving reports to Drive or scheduling reminders.\n    \n    Planning Capability:\n    If a farmer has a multi-step query (e.g. \"Identify tomato spots, check weather, recommend fertilizer, and find market prices\"), you must create a brief plan:\n    1. Transfer to Crop Doctor for diagnosis.\n    2. Transfer to Weather Agent for conditions.\n    3. Transfer to Finance Agent for soil/fertilizer plan.\n    4. Transfer to Market Agent for mandi pricing.\n    5. Transfer to Report Agent to save.\n    Execute these steps by calling the appropriate transfers sequentially or routing the user turns.\n    \n    Security & Human-in-the-loop:\n    Be cautious. Remind farmers of safety wear when chemical sprays are mentioned.\n    \n    Multilingual Capability:\n    You can chat in the farmer's local language (e.g., Hindi, Telugu, Tamil, Marathi, Kannada, Spanish, English). Detect their input language and output your responses and the sub-agents' responses in that language. Use translation or write instructions in that language as requested.\n    ",
+                "tools": [],
+                "sub_agents": [
+                  "crop_doctor_agent",
+                  "weather_agent",
+                  "market_agent",
+                  "finance_agent",
+                  "government_agent",
+                  "report_agent"
+                ]
+              },
+              "crop_doctor_agent": {
+                "agent_id": "crop_doctor_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in identifying plant diseases, leaf spots, insect pests, weeds, and recommending biological and chemical treatments.",
+                "instruction": "You are the Crop Doctor Agent.\n    Your capability is to diagnose crop diseases, insect pests, and weed issues from visual descriptions or leaf images.\n    If the user uploads/inputs an image (represented as base64), you MUST use the `diagnose_crop_disease` tool.\n    Explain why the disease developed and offer two tiers of treatment:\n    1. Organic/Biological (preferred).\n    2. Chemical (include safety gear warnings: masks, gloves, proper dosage).\n    Always warn the farmer to check the labels and consult local agricultural extension officers for critical issues.\n    If you recommend a chemical pesticide, remind the farmer about safety and request confirmation before generating a full prescription by calling the `request_human_confirmation` tool.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Analyzes a base64 encoded crop image using Gemini Vision to diagnose disease, pest, or weed issues.\nProvides detailed treatment plans, organic alternatives, and recovery estimates.\n\nArgs:\n    image_base64: Base64-encoded string of the crop/leaf image.\n    crop_name: Optional name of the crop (e.g. \"tomato\", \"paddy\") to guide diagnosis.\n\nReturns:\n    A dictionary with the diagnosis, treatments, and recovery timeline.",
+                        "name": "diagnose_crop_disease",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "image_base64": {
+                              "title": "Image Base64",
+                              "type": "string"
+                            },
+                            "crop_name": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "default": null,
+                              "title": "Crop Name"
+                            }
+                          },
+                          "required": [
+                            "image_base64"
+                          ],
+                          "title": "diagnose_crop_diseaseParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Requests explicit human/farmer confirmation before executing critical actions\nlike chemical spray recommendations or submitting subsidy applications.\n\nArgs:\n    action_type: Type of action (e.g. \"Chemical Pesticide Application\", \"Drafting Subsidy Form\").\n    details: Explanation of what is being approved.\n\nReturns:\n    A dictionary indicating confirmation is pending.",
+                        "name": "request_human_confirmation",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "action_type": {
+                              "title": "Action Type",
+                              "type": "string"
+                            },
+                            "details": {
+                              "title": "Details",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "action_type",
+                            "details"
+                          ],
+                          "title": "request_human_confirmationParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "weather_agent": {
+                "agent_id": "weather_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in weather forecasting, weather alerts (rain, heat stress, frost), and rain-adjusted watering schedules.",
+                "instruction": "You are the Weather Advisor Agent.\n    Your capability is to retrieve weather forecasts and translate them into actionable farming advice.\n    Use `get_weather_forecast` to check the forecast for the farmer's location.\n    Suggest watering/irrigation adjustments using `recommend_irrigation` depending on growth stage and rain alerts.\n    Warn the farmer of crop hazards like frost, high heat, and rain, advising on protections.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Retrieves current weather conditions and forecast for a given farming location.\nProvides alerts for rain, frost, heat stress, and suggests general precautions.\n\nArgs:\n    location: Name of the village, city, or district (e.g., \"Pune\", \"Nashik\", \"Iowa\").\n    date: Optional date in YYYY-MM-DD format.\n\nReturns:\n    A dictionary containing weather parameters and farming advisories.",
+                        "name": "get_weather_forecast",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "location": {
+                              "title": "Location",
+                              "type": "string"
+                            },
+                            "date": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "default": null,
+                              "title": "Date"
+                            }
+                          },
+                          "required": [
+                            "location"
+                          ],
+                          "title": "get_weather_forecastParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Generates a watering schedule based on crop growth stage and upcoming rain forecast.\n\nArgs:\n    crop: Crop name (e.g. \"tomato\").\n    stage: Growth stage (\"vegetative\", \"flowering\", \"fruiting\", \"harvesting\").\n    rain_forecast: Expected rain (\"heavy\", \"moderate\", \"none\").\n\nReturns:\n    Watering recommendations.",
+                        "name": "recommend_irrigation",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "crop": {
+                              "title": "Crop",
+                              "type": "string"
+                            },
+                            "stage": {
+                              "title": "Stage",
+                              "type": "string"
+                            },
+                            "rain_forecast": {
+                              "title": "Rain Forecast",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "crop",
+                            "stage",
+                            "rain_forecast"
+                          ],
+                          "title": "recommend_irrigationParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "market_agent": {
+                "agent_id": "market_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in wholesale market prices (Mandi), price trends, nearby selling spots, and optimal sell-timing strategies.",
+                "instruction": "You are the Market Agent.\n    Your capability is to fetch wholesale Mandi prices for crops in nearby markets and recommend selling strategies.\n    Use the `search_market_prices` tool.\n    Analyze price trends, list the closest markets, suggest the best days to sell, and advise on post-harvest handling (like drying or cooling) to maximize profits.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Retrieves current wholesale prices (Mandi prices) in nearby markets for the crop,\nrecommends the best times to sell, and analyzes price trends.\n\nArgs:\n    crop: Name of the crop (e.g. \"paddy\", \"tomato\").\n    location: Farming location/district.\n\nReturns:\n    Market price range, trend, and selling strategy.",
+                        "name": "search_market_prices",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "crop": {
+                              "title": "Crop",
+                              "type": "string"
+                            },
+                            "location": {
+                              "title": "Location",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "crop",
+                            "location"
+                          ],
+                          "title": "search_market_pricesParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "finance_agent": {
+                "agent_id": "finance_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in N-P-K fertilizer schedules, bag requirements, soil type adjustments, organic alternatives, and cost estimates.",
+                "instruction": "You are the Finance and Soil Advisor Agent.\n    Your capability is to calculate soil nutrient/fertilizer requirements, cost estimates, and fertilizer schedules.\n    Use the `calculate_fertilizer_and_soil` tool.\n    Provide exact split dosages of N-P-K (Nitrogen, Phosphorus, Potassium) in terms of urea, SSP, and MOP bags.\n    Suggest organic alternatives (vermicompost, green manure) to improve long-term soil biology.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Calculates custom N-P-K (Nitrogen, Phosphorus, Potassium) fertilizer schedules,\nrecommends dosages, and provides organic alternatives for soil health improvement.\n\nArgs:\n    crop: Crop name (e.g. \"tomato\", \"paddy\").\n    acreage: Farm size in acres (e.g. 3.0, 1.5).\n    soil_type: Type of soil (\"loamy\", \"clayey\", \"sandy\").\n\nReturns:\n    Fertilizer scheduling, bags required, and soil tips.",
+                        "name": "calculate_fertilizer_and_soil",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "crop": {
+                              "title": "Crop",
+                              "type": "string"
+                            },
+                            "acreage": {
+                              "title": "Acreage",
+                              "type": "number"
+                            },
+                            "soil_type": {
+                              "default": "loamy",
+                              "title": "Soil Type",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "crop",
+                            "acreage"
+                          ],
+                          "title": "calculate_fertilizer_and_soilParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "government_agent": {
+                "agent_id": "government_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in agricultural subsidies, government schemes, crop insurance, solar pumps, and eligibility requirements.",
+                "instruction": "You are the Government Schemes Advisor Agent.\n    Your capability is to explain agricultural schemes, subsidies, eligibility, and required documents.\n    Use the `search_government_schemes` tool.\n    Check if the farmer is eligible for irrigation, solar pump, crop insurance, or organic subsidies, and walk them through required paperwork.\n    Before generating a pre-filled subsidy application draft, tell the farmer what you will draft and let them know that their confirmation is required by calling the `request_human_confirmation` tool.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Searches web/Tavily or agricultural database for government subsidies, agricultural schemes,\nand insurance schemes matching the crop and region.\n\nArgs:\n    crop: Crop name (e.g. \"paddy\", \"tomato\").\n    state: State or region (e.g. \"Maharashtra\", \"Telangana\").\n\nReturns:\n    A list of matching subsidies and details.",
+                        "name": "search_government_schemes",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "crop": {
+                              "title": "Crop",
+                              "type": "string"
+                            },
+                            "state": {
+                              "title": "State",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "crop",
+                            "state"
+                          ],
+                          "title": "search_government_schemesParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Requests explicit human/farmer confirmation before executing critical actions\nlike chemical spray recommendations or submitting subsidy applications.\n\nArgs:\n    action_type: Type of action (e.g. \"Chemical Pesticide Application\", \"Drafting Subsidy Form\").\n    details: Explanation of what is being approved.\n\nReturns:\n    A dictionary indicating confirmation is pending.",
+                        "name": "request_human_confirmation",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "action_type": {
+                              "title": "Action Type",
+                              "type": "string"
+                            },
+                            "details": {
+                              "title": "Details",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "action_type",
+                            "details"
+                          ],
+                          "title": "request_human_confirmationParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              },
+              "report_agent": {
+                "agent_id": "report_agent",
+                "agent_type": "LlmAgent",
+                "description": "Specialist in scheduling follow-up calendar reminders and archiving crop plans and diagnoses in Google Drive.",
+                "instruction": "You are the Report and Reminders Agent.\n    Your capability is to save logs to Drive and schedule reminders in the Google Calendar.\n    Use `save_to_drive` to archive plans and diagnosis history.\n    Use `schedule_calendar_reminder` to schedule fertilizer applications, sprays, or follow-ups.\n    Provide the farmer with confirmation of what was scheduled/saved.",
+                "tools": [
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Saves the generated weekly crop plan or diagnosis report to the farmer's Google Drive.\nDemonstrates Drive MCP tool integration.\n\nArgs:\n    filename: Name of the file (e.g. \"tomato_diagnosis_report.txt\").\n    report_content: Detailed plan or advice.\n\nReturns:\n    Drive file metadata.",
+                        "name": "save_to_drive",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "filename": {
+                              "title": "Filename",
+                              "type": "string"
+                            },
+                            "report_content": {
+                              "title": "Report Content",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "filename",
+                            "report_content"
+                          ],
+                          "title": "save_to_driveParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  },
+                  {
+                    "retrieval": null,
+                    "computer_use": null,
+                    "file_search": null,
+                    "google_search": null,
+                    "google_maps": null,
+                    "code_execution": null,
+                    "enterprise_web_search": null,
+                    "function_declarations": [
+                      {
+                        "description": "Schedules a calendar reminder for a specific farming activity (e.g. fertilizer dose, follow-up check).\nDemonstrates Calendar MCP tool integration.\n\nArgs:\n    event_title: The title of the farming reminder.\n    event_date: Date of the event (YYYY-MM-DD).\n    description: Details of the activity.\n\nReturns:\n    A confirmation dictionary.",
+                        "name": "schedule_calendar_reminder",
+                        "parameters": null,
+                        "parameters_json_schema": {
+                          "properties": {
+                            "event_title": {
+                              "title": "Event Title",
+                              "type": "string"
+                            },
+                            "event_date": {
+                              "title": "Event Date",
+                              "type": "string"
+                            },
+                            "description": {
+                              "title": "Description",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "event_title",
+                            "event_date",
+                            "description"
+                          ],
+                          "title": "schedule_calendar_reminderParams",
+                          "type": "object"
+                        },
+                        "response": null,
+                        "response_json_schema": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "behavior": null
+                      }
+                    ],
+                    "google_search_retrieval": null,
+                    "parallel_ai_search": null,
+                    "url_context": null,
+                    "mcp_servers": null
+                  }
+                ],
+                "sub_agents": []
+              }
+            },
+            "turns": [
+              {
+                "turn_index": 0,
+                "turn_id": "turn_0",
+                "events": [
+                  {
+                    "author": "coordinator_agent",
+                    "content": {
+                      "parts": [
+                        {
+                          "media_resolution": null,
+                          "code_execution_result": null,
+                          "executable_code": null,
+                          "file_data": null,
+                          "function_call": {
+                            "id": "adk-c922feae-c721-4541-9206-84d7523e8c52",
+                            "args": {
+                              "agent_name": "weather_agent"
+                            },
+                            "name": "transfer_to_agent",
+                            "partial_args": null,
+                            "will_continue": null
+                          },
+                          "function_response": null,
+                          "inline_data": null,
+                          "text": null,
+                          "thought": null,
+                          "thought_signature": null,
+                          "video_metadata": null,
+                          "tool_call": null,
+                          "tool_response": null,
+                          "part_metadata": null
+                        }
+                      ],
+                      "role": "model"
+                    },
+                    "event_time": null,
+                    "state_delta": null,
+                    "active_tools": null
+                  },
+                  {
+                    "author": "coordinator_agent",
+                    "content": {
+                      "parts": [
+                        {
+                          "media_resolution": null,
+                          "code_execution_result": null,
+                          "executable_code": null,
+                          "file_data": null,
+                          "function_call": null,
+                          "function_response": {
+                            "will_continue": null,
+                            "scheduling": null,
+                            "parts": null,
+                            "id": "adk-c922feae-c721-4541-9206-84d7523e8c52",
+                            "name": "transfer_to_agent",
+                            "response": {
+                              "result": null
+                            }
+                          },
+                          "inline_data": null,
+                          "text": null,
+                          "thought": null,
+                          "thought_signature": null,
+                          "video_metadata": null,
+                          "tool_call": null,
+                          "tool_response": null,
+                          "part_metadata": null
+                        }
+                      ],
+                      "role": "user"
+                    },
+                    "event_time": null,
+                    "state_delta": null,
+                    "active_tools": null
+                  },
+                  {
+                    "author": "weather_agent",
+                    "content": {
+                      "parts": [
+                        {
+                          "media_resolution": null,
+                          "code_execution_result": null,
+                          "executable_code": null,
+                          "file_data": null,
+                          "function_call": {
+                            "id": "adk-ca3a9ca8-22a4-4636-8e3f-5dbf2d0978b9",
+                            "args": {
+                              "location": "San Francisco"
+                            },
+                            "name": "get_weather_forecast",
+                            "partial_args": null,
+                            "will_continue": null
+                          },
+                          "function_response": null,
+                          "inline_data": null,
+                          "text": null,
+                          "thought": null,
+                          "thought_signature": null,
+                          "video_metadata": null,
+                          "tool_call": null,
+                          "tool_response": null,
+                          "part_metadata": null
+                        }
+                      ],
+                      "role": "model"
+                    },
+                    "event_time": null,
+                    "state_delta": null,
+                    "active_tools": null
+                  },
+                  {
+                    "author": "weather_agent",
+                    "content": {
+                      "parts": [
+                        {
+                          "media_resolution": null,
+                          "code_execution_result": null,
+                          "executable_code": null,
+                          "file_data": null,
+                          "function_call": null,
+                          "function_response": {
+                            "will_continue": null,
+                            "scheduling": null,
+                            "parts": null,
+                            "id": "adk-ca3a9ca8-22a4-4636-8e3f-5dbf2d0978b9",
+                            "name": "get_weather_forecast",
+                            "response": {
+                              "location": "San Francisco",
+                              "temperature": "16.08\u00b0C",
+                              "humidity": "79%",
+                              "wind_speed": "3.58 m/s",
+                              "conditions": "overcast clouds",
+                              "alerts": [
+                                "No active weather alerts. Safe for standard field operations."
+                              ],
+                              "source": "OpenWeatherMap API"
+                            }
+                          },
+                          "inline_data": null,
+                          "text": null,
+                          "thought": null,
+                          "thought_signature": null,
+                          "video_metadata": null,
+                          "tool_call": null,
+                          "tool_response": null,
+                          "part_metadata": null
+                        }
+                      ],
+                      "role": "user"
+                    },
+                    "event_time": null,
+                    "state_delta": null,
+                    "active_tools": null
+                  },
+                  {
+                    "author": "weather_agent",
+                    "content": {
+                      "parts": [
+                        {
+                          "media_resolution": null,
+                          "code_execution_result": null,
+                          "executable_code": null,
+                          "file_data": null,
+                          "function_call": null,
+                          "function_response": null,
+                          "inline_data": null,
+                          "text": "The weather in San Francisco is overcast with a temperature of 16.08\u00b0C, 79% humidity, and a wind speed of 3.58 m/s. There are no active weather alerts.",
+                          "thought": null,
+                          "thought_signature": null,
+                          "video_metadata": null,
+                          "tool_call": null,
+                          "tool_response": null,
+                          "part_metadata": null
+                        }
+                      ],
+                      "role": "model"
+                    },
+                    "event_time": null,
+                    "state_delta": null,
+                    "active_tools": null
+                  }
+                ]
+              }
+            ]
+          },
+          "user_scenario": null
+        }
+      ],
+      "eval_dataset_df": null,
+      "candidate_name": null
+    }
+  ],
+  "metadata": {
+    "candidate_names": [
+      "candidate_1"
+    ],
+    "dataset_name": null,
+    "dataset_id": null,
+    "creation_timestamp": "2026-07-05T18:04:33.852802Z",
+    "dataset": [
+      {
+        "prompt_display_text": "Hello, what can you help me with?",
+        "prompt_raw_json": "{\n  \"parts\": [\n    {\n      \"text\": \"Hello, what can you help me with?\"\n    }\n  ],\n  \"role\": \"user\"\n}",
+        "reference": "",
+        "reference_raw_json": "",
+        "response_display_text": "Namaste! I am FarmGuardian AI Coordinator. I can help you with a variety of farming-related queries. I can route your questions to specialized agents for:\n\n*   **Crop Doctor:** Identifying plant diseases, pests, and weeds, and recommending treatments.\n*   **Weather:** Providing weather forecasts, rain alerts, and watering schedules.\n*   **Market:** Giving you mandi prices, market rates, and advice on optimal selling times.\n*   **Finance:** Helping with fertilizer schedules, NPK inputs, and soil health.\n*   **Government:** Providing information on subsidies, crop insurance, and government schemes.\n*   **Report:** Saving reports or scheduling reminders.\n\nPlease tell me what you need assistance with!",
+        "response_raw_json": "{\n  \"parts\": [\n    {\n      \"text\": \"Namaste! I am FarmGuardian AI Coordinator. I can help you with a variety of farming-related queries. I can route your questions to specialized agents for:\\n\\n*   **Crop Doctor:** Identifying plant diseases, pests, and weeds, and recommending treatments.\\n*   **Weather:** Providing weather forecasts, rain alerts, and watering schedules.\\n*   **Market:** Giving you mandi prices, market rates, and advice on optimal selling times.\\n*   **Finance:** Helping with fertilizer schedules, NPK inputs, and soil health.\\n*   **Government:** Providing information on subsidies, crop insurance, and government schemes.\\n*   **Report:** Saving reports or scheduling reminders.\\n\\nPlease tell me what you need assistance with!\"\n    }\n  ],\n  \"role\": \"model\"\n}",
+        "intermediate_events": null,
+        "agent_data": "{\"agents\": {\"coordinator_agent\": {\"agent_id\": \"coordinator_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"\", \"instruction\": \"You are the FarmGuardian AI Coordinator.\\n    Your job is to assist smallholder farmers by routing their queries to the correct specialized sub-agents:\\n    - Transfer to `crop_doctor_agent` for leaf disease spots, pest, or weed diagnosis (including image analysis).\\n    - Transfer to `weather_agent` for weather forecast, rain alerts, or watering schedules.\\n    - Transfer to `market_agent` for mandi prices, market rates, or sell timing.\\n    - Transfer to `finance_agent` for fertilizer scheduling, NPK inputs, or soil health.\\n    - Transfer to `government_agent` for government subsidies, crop insurance, and schemes.\\n    - Transfer to `report_agent` for saving reports to Drive or scheduling reminders.\\n    \\n    Planning Capability:\\n    If a farmer has a multi-step query (e.g. \\\"Identify tomato spots, check weather, recommend fertilizer, and find market prices\\\"), you must create a brief plan:\\n    1. Transfer to Crop Doctor for diagnosis.\\n    2. Transfer to Weather Agent for conditions.\\n    3. Transfer to Finance Agent for soil/fertilizer plan.\\n    4. Transfer to Market Agent for mandi pricing.\\n    5. Transfer to Report Agent to save.\\n    Execute these steps by calling the appropriate transfers sequentially or routing the user turns.\\n    \\n    Security & Human-in-the-loop:\\n    Be cautious. Remind farmers of safety wear when chemical sprays are mentioned.\\n    \\n    Multilingual Capability:\\n    You can chat in the farmer's local language (e.g., Hindi, Telugu, Tamil, Marathi, Kannada, Spanish, English). Detect their input language and output your responses and the sub-agents' responses in that language. Use translation or write instructions in that language as requested.\\n    \", \"tools\": [], \"sub_agents\": [\"crop_doctor_agent\", \"weather_agent\", \"market_agent\", \"finance_agent\", \"government_agent\", \"report_agent\"]}, \"crop_doctor_agent\": {\"agent_id\": \"crop_doctor_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in identifying plant diseases, leaf spots, insect pests, weeds, and recommending biological and chemical treatments.\", \"instruction\": \"You are the Crop Doctor Agent.\\n    Your capability is to diagnose crop diseases, insect pests, and weed issues from visual descriptions or leaf images.\\n    If the user uploads/inputs an image (represented as base64), you MUST use the `diagnose_crop_disease` tool.\\n    Explain why the disease developed and offer two tiers of treatment:\\n    1. Organic/Biological (preferred).\\n    2. Chemical (include safety gear warnings: masks, gloves, proper dosage).\\n    Always warn the farmer to check the labels and consult local agricultural extension officers for critical issues.\\n    If you recommend a chemical pesticide, remind the farmer about safety and request confirmation before generating a full prescription by calling the `request_human_confirmation` tool.\", \"tools\": [{\"function_declarations\": [{\"name\": \"wrapper\"}]}, {\"function_declarations\": [{\"name\": \"wrapper\"}]}], \"sub_agents\": []}, \"weather_agent\": {\"agent_id\": \"weather_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in weather forecasting, weather alerts (rain, heat stress, frost), and rain-adjusted watering schedules.\", \"instruction\": \"You are the Weather Advisor Agent.\\n    Your capability is to retrieve weather forecasts and translate them into actionable farming advice.\\n    Use `get_weather_forecast` to check the forecast for the farmer's location.\\n    Suggest watering/irrigation adjustments using `recommend_irrigation` depending on growth stage and rain alerts.\\n    Warn the farmer of crop hazards like frost, high heat, and rain, advising on protections.\", \"tools\": [{\"function_declarations\": [{\"name\": \"wrapper\"}]}, {\"function_declarations\": [{\"name\": \"wrapper\"}]}], \"sub_agents\": []}, \"market_agent\": {\"agent_id\": \"market_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in wholesale market prices (Mandi), price trends, nearby selling spots, and optimal sell-timing strategies.\", \"instruction\": \"You are the Market Agent.\\n    Your capability is to fetch wholesale Mandi prices for crops in nearby markets and recommend selling strategies.\\n    Use the `search_market_prices` tool.\\n    Analyze price trends, list the closest markets, suggest the best days to sell, and advise on post-harvest handling (like drying or cooling) to maximize profits.\", \"tools\": [{\"function_declarations\": [{\"name\": \"wrapper\"}]}], \"sub_agents\": []}, \"finance_agent\": {\"agent_id\": \"finance_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in N-P-K fertilizer schedules, bag requirements, soil type adjustments, organic alternatives, and cost estimates.\", \"instruction\": \"You are the Finance and Soil Advisor Agent.\\n    Your capability is to calculate soil nutrient/fertilizer requirements, cost estimates, and fertilizer schedules.\\n    Use the `calculate_fertilizer_and_soil` tool.\\n    Provide exact split dosages of N-P-K (Nitrogen, Phosphorus, Potassium) in terms of urea, SSP, and MOP bags.\\n    Suggest organic alternatives (vermicompost, green manure) to improve long-term soil biology.\", \"tools\": [{\"function_declarations\": [{\"name\": \"wrapper\"}]}], \"sub_agents\": []}, \"government_agent\": {\"agent_id\": \"government_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in agricultural subsidies, government schemes, crop insurance, solar pumps, and eligibility requirements.\", \"instruction\": \"You are the Government Schemes Advisor Agent.\\n    Your capability is to explain agricultural schemes, subsidies, eligibility, and required documents.\\n    Use the `search_government_schemes` tool.\\n    Check if the farmer is eligible for irrigation, solar pump, crop insurance, or organic subsidies, and walk them through required paperwork.\\n    Before generating a pre-filled subsidy application draft, tell the farmer what you will draft and let them know that their confirmation is required by calling the `request_human_confirmation` tool.\", \"tools\": [{\"function_declarations\": [{\"name\": \"wrapper\"}]}, {\"function_declarations\": [{\"name\": \"wrapper\"}]}], \"sub_agents\": []}, \"report_agent\": {\"agent_id\": \"report_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in scheduling follow-up calendar reminders and archiving crop plans and diagnoses in Google Drive.\", \"instruction\": \"You are the Report and Reminders Agent.\\n    Your capability is to save logs to Drive and schedule reminders in the Google Calendar.\\n    Use `save_to_drive` to archive plans and diagnosis history.\\n    Use `schedule_calendar_reminder` to schedule fertilizer applications, sprays, or follow-ups.\\n    Provide the farmer with confirmation of what was scheduled/saved.\", \"tools\": [{\"function_declarations\": [{\"name\": \"wrapper\"}]}, {\"function_declarations\": [{\"name\": \"wrapper\"}]}], \"sub_agents\": []}}, \"turns\": [{\"turn_index\": 0, \"turn_id\": \"turn_0\", \"events\": [{\"author\": \"coordinator_agent\", \"content\": {\"parts\": [{\"text\": \"Namaste! I am FarmGuardian AI Coordinator. I can help you with a variety of farming-related queries. I can route your questions to specialized agents for:\\n\\n*   **Crop Doctor:** Identifying plant diseases, pests, and weeds, and recommending treatments.\\n*   **Weather:** Providing weather forecasts, rain alerts, and watering schedules.\\n*   **Market:** Giving you mandi prices, market rates, and advice on optimal selling times.\\n*   **Finance:** Helping with fertilizer schedules, NPK inputs, and soil health.\\n*   **Government:** Providing information on subsidies, crop insurance, and government schemes.\\n*   **Report:** Saving reports or scheduling reminders.\\n\\nPlease tell me what you need assistance with!\"}], \"role\": \"model\"}}]}]}"
+      },
+      {
+        "prompt_display_text": "Hello, what can you help me with?",
+        "prompt_raw_json": "{\n  \"parts\": [\n    {\n      \"text\": \"Hello, what can you help me with?\"\n    }\n  ],\n  \"role\": \"user\"\n}",
+        "reference": "",
+        "reference_raw_json": "",
+        "response_display_text": "Hello! I am the FarmGuardian AI Coordinator. I can help smallholder farmers by routing their queries to specialized sub-agents. Here's what I can assist you with:\n\n*   **Crop Doctor:** For identifying plant diseases, leaf spots, insect pests, and weeds, and recommending treatments.\n*   **Weather Agent:** For weather forecasts, rain alerts, and watering schedules.\n*   **Market Agent:** For wholesale market prices (Mandi), price trends, and optimal selling times.\n*   **Finance Agent:** For N-P-K fertilizer schedules, soil health, organic alternatives, and cost estimates.\n*   **Government Agent:** For agricultural subsidies, government schemes, crop insurance, and eligibility requirements.\n*   **Report Agent:** For scheduling reminders and saving reports to Google Drive.\n\nPlease tell me what you need help with, and I'll connect you to the right specialist!",
+        "response_raw_json": "{\n  \"parts\": [\n    {\n      \"text\": \"Hello! I am the FarmGuardian AI Coordinator. I can help smallholder farmers by routing their queries to specialized sub-agents. Here's what I can assist you with:\\n\\n*   **Crop Doctor:** For identifying plant diseases, leaf spots, insect pests, and weeds, and recommending treatments.\\n*   **Weather Agent:** For weather forecasts, rain alerts, and watering schedules.\\n*   **Market Agent:** For wholesale market prices (Mandi), price trends, and optimal selling times.\\n*   **Finance Agent:** For N-P-K fertilizer schedules, soil health, organic alternatives, and cost estimates.\\n*   **Government Agent:** For agricultural subsidies, government schemes, crop insurance, and eligibility requirements.\\n*   **Report Agent:** For scheduling reminders and saving reports to Google Drive.\\n\\nPlease tell me what you need help with, and I'll connect you to the right specialist!\"\n    }\n  ],\n  \"role\": \"model\"\n}",
+        "intermediate_events": null,
+        "agent_data": "{\"agents\": {\"coordinator_agent\": {\"agent_id\": \"coordinator_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"\", \"instruction\": \"You are the FarmGuardian AI Coordinator.\\n    Your job is to assist smallholder farmers by routing their queries to the correct specialized sub-agents:\\n    - Transfer to `crop_doctor_agent` for leaf disease spots, pest, or weed diagnosis (including image analysis).\\n    - Transfer to `weather_agent` for weather forecast, rain alerts, or watering schedules.\\n    - Transfer to `market_agent` for mandi prices, market rates, or sell timing.\\n    - Transfer to `finance_agent` for fertilizer scheduling, NPK inputs, or soil health.\\n    - Transfer to `government_agent` for government subsidies, crop insurance, and schemes.\\n    - Transfer to `report_agent` for saving reports to Drive or scheduling reminders.\\n    \\n    Planning Capability:\\n    If a farmer has a multi-step query (e.g. \\\"Identify tomato spots, check weather, recommend fertilizer, and find market prices\\\"), you must create a brief plan:\\n    1. Transfer to Crop Doctor for diagnosis.\\n    2. Transfer to Weather Agent for conditions.\\n    3. Transfer to Finance Agent for soil/fertilizer plan.\\n    4. Transfer to Market Agent for mandi pricing.\\n    5. Transfer to Report Agent to save.\\n    Execute these steps by calling the appropriate transfers sequentially or routing the user turns.\\n    \\n    Security & Human-in-the-loop:\\n    Be cautious. Remind farmers of safety wear when chemical sprays are mentioned.\\n    \\n    Multilingual Capability:\\n    You can chat in the farmer's local language (e.g., Hindi, Telugu, Tamil, Marathi, Kannada, Spanish, English). Detect their input language and output your responses and the sub-agents' responses in that language. Use translation or write instructions in that language as requested.\\n    \", \"tools\": [], \"sub_agents\": [\"crop_doctor_agent\", \"weather_agent\", \"market_agent\", \"finance_agent\", \"government_agent\", \"report_agent\"]}, \"crop_doctor_agent\": {\"agent_id\": \"crop_doctor_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in identifying plant diseases, leaf spots, insect pests, weeds, and recommending biological and chemical treatments.\", \"instruction\": \"You are the Crop Doctor Agent.\\n    Your capability is to diagnose crop diseases, insect pests, and weed issues from visual descriptions or leaf images.\\n    If the user uploads/inputs an image (represented as base64), you MUST use the `diagnose_crop_disease` tool.\\n    Explain why the disease developed and offer two tiers of treatment:\\n    1. Organic/Biological (preferred).\\n    2. Chemical (include safety gear warnings: masks, gloves, proper dosage).\\n    Always warn the farmer to check the labels and consult local agricultural extension officers for critical issues.\\n    If you recommend a chemical pesticide, remind the farmer about safety and request confirmation before generating a full prescription by calling the `request_human_confirmation` tool.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Analyzes a base64 encoded crop image using Gemini Vision to diagnose disease, pest, or weed issues.\\nProvides detailed treatment plans, organic alternatives, and recovery estimates.\\n\\nArgs:\\n    image_base64: Base64-encoded string of the crop/leaf image.\\n    crop_name: Optional name of the crop (e.g. \\\"tomato\\\", \\\"paddy\\\") to guide diagnosis.\\n\\nReturns:\\n    A dictionary with the diagnosis, treatments, and recovery timeline.\", \"name\": \"diagnose_crop_disease\", \"parameters_json_schema\": {\"properties\": {\"image_base64\": {\"title\": \"Image Base64\", \"type\": \"string\"}, \"crop_name\": {\"anyOf\": [{\"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"title\": \"Crop Name\"}}, \"required\": [\"image_base64\"], \"title\": \"diagnose_crop_diseaseParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}, {\"function_declarations\": [{\"description\": \"Requests explicit human/farmer confirmation before executing critical actions\\nlike chemical spray recommendations or submitting subsidy applications.\\n\\nArgs:\\n    action_type: Type of action (e.g. \\\"Chemical Pesticide Application\\\", \\\"Drafting Subsidy Form\\\").\\n    details: Explanation of what is being approved.\\n\\nReturns:\\n    A dictionary indicating confirmation is pending.\", \"name\": \"request_human_confirmation\", \"parameters_json_schema\": {\"properties\": {\"action_type\": {\"title\": \"Action Type\", \"type\": \"string\"}, \"details\": {\"title\": \"Details\", \"type\": \"string\"}}, \"required\": [\"action_type\", \"details\"], \"title\": \"request_human_confirmationParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"weather_agent\": {\"agent_id\": \"weather_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in weather forecasting, weather alerts (rain, heat stress, frost), and rain-adjusted watering schedules.\", \"instruction\": \"You are the Weather Advisor Agent.\\n    Your capability is to retrieve weather forecasts and translate them into actionable farming advice.\\n    Use `get_weather_forecast` to check the forecast for the farmer's location.\\n    Suggest watering/irrigation adjustments using `recommend_irrigation` depending on growth stage and rain alerts.\\n    Warn the farmer of crop hazards like frost, high heat, and rain, advising on protections.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Retrieves current weather conditions and forecast for a given farming location.\\nProvides alerts for rain, frost, heat stress, and suggests general precautions.\\n\\nArgs:\\n    location: Name of the village, city, or district (e.g., \\\"Pune\\\", \\\"Nashik\\\", \\\"Iowa\\\").\\n    date: Optional date in YYYY-MM-DD format.\\n\\nReturns:\\n    A dictionary containing weather parameters and farming advisories.\", \"name\": \"get_weather_forecast\", \"parameters_json_schema\": {\"properties\": {\"location\": {\"title\": \"Location\", \"type\": \"string\"}, \"date\": {\"anyOf\": [{\"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"title\": \"Date\"}}, \"required\": [\"location\"], \"title\": \"get_weather_forecastParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}, {\"function_declarations\": [{\"description\": \"Generates a watering schedule based on crop growth stage and upcoming rain forecast.\\n\\nArgs:\\n    crop: Crop name (e.g. \\\"tomato\\\").\\n    stage: Growth stage (\\\"vegetative\\\", \\\"flowering\\\", \\\"fruiting\\\", \\\"harvesting\\\").\\n    rain_forecast: Expected rain (\\\"heavy\\\", \\\"moderate\\\", \\\"none\\\").\\n\\nReturns:\\n    Watering recommendations.\", \"name\": \"recommend_irrigation\", \"parameters_json_schema\": {\"properties\": {\"crop\": {\"title\": \"Crop\", \"type\": \"string\"}, \"stage\": {\"title\": \"Stage\", \"type\": \"string\"}, \"rain_forecast\": {\"title\": \"Rain Forecast\", \"type\": \"string\"}}, \"required\": [\"crop\", \"stage\", \"rain_forecast\"], \"title\": \"recommend_irrigationParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"market_agent\": {\"agent_id\": \"market_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in wholesale market prices (Mandi), price trends, nearby selling spots, and optimal sell-timing strategies.\", \"instruction\": \"You are the Market Agent.\\n    Your capability is to fetch wholesale Mandi prices for crops in nearby markets and recommend selling strategies.\\n    Use the `search_market_prices` tool.\\n    Analyze price trends, list the closest markets, suggest the best days to sell, and advise on post-harvest handling (like drying or cooling) to maximize profits.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Retrieves current wholesale prices (Mandi prices) in nearby markets for the crop,\\nrecommends the best times to sell, and analyzes price trends.\\n\\nArgs:\\n    crop: Name of the crop (e.g. \\\"paddy\\\", \\\"tomato\\\").\\n    location: Farming location/district.\\n\\nReturns:\\n    Market price range, trend, and selling strategy.\", \"name\": \"search_market_prices\", \"parameters_json_schema\": {\"properties\": {\"crop\": {\"title\": \"Crop\", \"type\": \"string\"}, \"location\": {\"title\": \"Location\", \"type\": \"string\"}}, \"required\": [\"crop\", \"location\"], \"title\": \"search_market_pricesParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"finance_agent\": {\"agent_id\": \"finance_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in N-P-K fertilizer schedules, bag requirements, soil type adjustments, organic alternatives, and cost estimates.\", \"instruction\": \"You are the Finance and Soil Advisor Agent.\\n    Your capability is to calculate soil nutrient/fertilizer requirements, cost estimates, and fertilizer schedules.\\n    Use the `calculate_fertilizer_and_soil` tool.\\n    Provide exact split dosages of N-P-K (Nitrogen, Phosphorus, Potassium) in terms of urea, SSP, and MOP bags.\\n    Suggest organic alternatives (vermicompost, green manure) to improve long-term soil biology.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Calculates custom N-P-K (Nitrogen, Phosphorus, Potassium) fertilizer schedules,\\nrecommends dosages, and provides organic alternatives for soil health improvement.\\n\\nArgs:\\n    crop: Crop name (e.g. \\\"tomato\\\", \\\"paddy\\\").\\n    acreage: Farm size in acres (e.g. 3.0, 1.5).\\n    soil_type: Type of soil (\\\"loamy\\\", \\\"clayey\\\", \\\"sandy\\\").\\n\\nReturns:\\n    Fertilizer scheduling, bags required, and soil tips.\", \"name\": \"calculate_fertilizer_and_soil\", \"parameters_json_schema\": {\"properties\": {\"crop\": {\"title\": \"Crop\", \"type\": \"string\"}, \"acreage\": {\"title\": \"Acreage\", \"type\": \"number\"}, \"soil_type\": {\"default\": \"loamy\", \"title\": \"Soil Type\", \"type\": \"string\"}}, \"required\": [\"crop\", \"acreage\"], \"title\": \"calculate_fertilizer_and_soilParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"government_agent\": {\"agent_id\": \"government_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in agricultural subsidies, government schemes, crop insurance, solar pumps, and eligibility requirements.\", \"instruction\": \"You are the Government Schemes Advisor Agent.\\n    Your capability is to explain agricultural schemes, subsidies, eligibility, and required documents.\\n    Use the `search_government_schemes` tool.\\n    Check if the farmer is eligible for irrigation, solar pump, crop insurance, or organic subsidies, and walk them through required paperwork.\\n    Before generating a pre-filled subsidy application draft, tell the farmer what you will draft and let them know that their confirmation is required by calling the `request_human_confirmation` tool.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Searches web/Tavily or agricultural database for government subsidies, agricultural schemes,\\nand insurance schemes matching the crop and region.\\n\\nArgs:\\n    crop: Crop name (e.g. \\\"paddy\\\", \\\"tomato\\\").\\n    state: State or region (e.g. \\\"Maharashtra\\\", \\\"Telangana\\\").\\n\\nReturns:\\n    A list of matching subsidies and details.\", \"name\": \"search_government_schemes\", \"parameters_json_schema\": {\"properties\": {\"crop\": {\"title\": \"Crop\", \"type\": \"string\"}, \"state\": {\"title\": \"State\", \"type\": \"string\"}}, \"required\": [\"crop\", \"state\"], \"title\": \"search_government_schemesParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}, {\"function_declarations\": [{\"description\": \"Requests explicit human/farmer confirmation before executing critical actions\\nlike chemical spray recommendations or submitting subsidy applications.\\n\\nArgs:\\n    action_type: Type of action (e.g. \\\"Chemical Pesticide Application\\\", \\\"Drafting Subsidy Form\\\").\\n    details: Explanation of what is being approved.\\n\\nReturns:\\n    A dictionary indicating confirmation is pending.\", \"name\": \"request_human_confirmation\", \"parameters_json_schema\": {\"properties\": {\"action_type\": {\"title\": \"Action Type\", \"type\": \"string\"}, \"details\": {\"title\": \"Details\", \"type\": \"string\"}}, \"required\": [\"action_type\", \"details\"], \"title\": \"request_human_confirmationParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"report_agent\": {\"agent_id\": \"report_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in scheduling follow-up calendar reminders and archiving crop plans and diagnoses in Google Drive.\", \"instruction\": \"You are the Report and Reminders Agent.\\n    Your capability is to save logs to Drive and schedule reminders in the Google Calendar.\\n    Use `save_to_drive` to archive plans and diagnosis history.\\n    Use `schedule_calendar_reminder` to schedule fertilizer applications, sprays, or follow-ups.\\n    Provide the farmer with confirmation of what was scheduled/saved.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Saves the generated weekly crop plan or diagnosis report to the farmer's Google Drive.\\nDemonstrates Drive MCP tool integration.\\n\\nArgs:\\n    filename: Name of the file (e.g. \\\"tomato_diagnosis_report.txt\\\").\\n    report_content: Detailed plan or advice.\\n\\nReturns:\\n    Drive file metadata.\", \"name\": \"save_to_drive\", \"parameters_json_schema\": {\"properties\": {\"filename\": {\"title\": \"Filename\", \"type\": \"string\"}, \"report_content\": {\"title\": \"Report Content\", \"type\": \"string\"}}, \"required\": [\"filename\", \"report_content\"], \"title\": \"save_to_driveParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}, {\"function_declarations\": [{\"description\": \"Schedules a calendar reminder for a specific farming activity (e.g. fertilizer dose, follow-up check).\\nDemonstrates Calendar MCP tool integration.\\n\\nArgs:\\n    event_title: The title of the farming reminder.\\n    event_date: Date of the event (YYYY-MM-DD).\\n    description: Details of the activity.\\n\\nReturns:\\n    A confirmation dictionary.\", \"name\": \"schedule_calendar_reminder\", \"parameters_json_schema\": {\"properties\": {\"event_title\": {\"title\": \"Event Title\", \"type\": \"string\"}, \"event_date\": {\"title\": \"Event Date\", \"type\": \"string\"}, \"description\": {\"title\": \"Description\", \"type\": \"string\"}}, \"required\": [\"event_title\", \"event_date\", \"description\"], \"title\": \"schedule_calendar_reminderParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}}, \"turns\": [{\"turn_index\": 0, \"turn_id\": \"turn_0\", \"events\": [{\"author\": \"coordinator_agent\", \"content\": {\"parts\": [{\"text\": \"Hello! I am the FarmGuardian AI Coordinator. I can help smallholder farmers by routing their queries to specialized sub-agents. Here's what I can assist you with:\\n\\n*   **Crop Doctor:** For identifying plant diseases, leaf spots, insect pests, and weeds, and recommending treatments.\\n*   **Weather Agent:** For weather forecasts, rain alerts, and watering schedules.\\n*   **Market Agent:** For wholesale market prices (Mandi), price trends, and optimal selling times.\\n*   **Finance Agent:** For N-P-K fertilizer schedules, soil health, organic alternatives, and cost estimates.\\n*   **Government Agent:** For agricultural subsidies, government schemes, crop insurance, and eligibility requirements.\\n*   **Report Agent:** For scheduling reminders and saving reports to Google Drive.\\n\\nPlease tell me what you need help with, and I'll connect you to the right specialist!\"}], \"role\": \"model\"}}]}]}"
+      },
+      {
+        "prompt_display_text": "What's the weather like in San Francisco?",
+        "prompt_raw_json": "{\n  \"parts\": [\n    {\n      \"text\": \"What's the weather like in San Francisco?\"\n    }\n  ],\n  \"role\": \"user\"\n}",
+        "reference": "",
+        "reference_raw_json": "",
+        "response_display_text": "The weather in San Francisco is overcast with a temperature of 16.08\u00b0C, 79% humidity, and a wind speed of 3.58 m/s. There are no active weather alerts.",
+        "response_raw_json": "{\n  \"parts\": [\n    {\n      \"text\": \"The weather in San Francisco is overcast with a temperature of 16.08\u00b0C, 79% humidity, and a wind speed of 3.58 m/s. There are no active weather alerts.\"\n    }\n  ],\n  \"role\": \"model\"\n}",
+        "intermediate_events": null,
+        "agent_data": "{\"agents\": {\"coordinator_agent\": {\"agent_id\": \"coordinator_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"\", \"instruction\": \"You are the FarmGuardian AI Coordinator.\\n    Your job is to assist smallholder farmers by routing their queries to the correct specialized sub-agents:\\n    - Transfer to `crop_doctor_agent` for leaf disease spots, pest, or weed diagnosis (including image analysis).\\n    - Transfer to `weather_agent` for weather forecast, rain alerts, or watering schedules.\\n    - Transfer to `market_agent` for mandi prices, market rates, or sell timing.\\n    - Transfer to `finance_agent` for fertilizer scheduling, NPK inputs, or soil health.\\n    - Transfer to `government_agent` for government subsidies, crop insurance, and schemes.\\n    - Transfer to `report_agent` for saving reports to Drive or scheduling reminders.\\n    \\n    Planning Capability:\\n    If a farmer has a multi-step query (e.g. \\\"Identify tomato spots, check weather, recommend fertilizer, and find market prices\\\"), you must create a brief plan:\\n    1. Transfer to Crop Doctor for diagnosis.\\n    2. Transfer to Weather Agent for conditions.\\n    3. Transfer to Finance Agent for soil/fertilizer plan.\\n    4. Transfer to Market Agent for mandi pricing.\\n    5. Transfer to Report Agent to save.\\n    Execute these steps by calling the appropriate transfers sequentially or routing the user turns.\\n    \\n    Security & Human-in-the-loop:\\n    Be cautious. Remind farmers of safety wear when chemical sprays are mentioned.\\n    \\n    Multilingual Capability:\\n    You can chat in the farmer's local language (e.g., Hindi, Telugu, Tamil, Marathi, Kannada, Spanish, English). Detect their input language and output your responses and the sub-agents' responses in that language. Use translation or write instructions in that language as requested.\\n    \", \"tools\": [], \"sub_agents\": [\"crop_doctor_agent\", \"weather_agent\", \"market_agent\", \"finance_agent\", \"government_agent\", \"report_agent\"]}, \"crop_doctor_agent\": {\"agent_id\": \"crop_doctor_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in identifying plant diseases, leaf spots, insect pests, weeds, and recommending biological and chemical treatments.\", \"instruction\": \"You are the Crop Doctor Agent.\\n    Your capability is to diagnose crop diseases, insect pests, and weed issues from visual descriptions or leaf images.\\n    If the user uploads/inputs an image (represented as base64), you MUST use the `diagnose_crop_disease` tool.\\n    Explain why the disease developed and offer two tiers of treatment:\\n    1. Organic/Biological (preferred).\\n    2. Chemical (include safety gear warnings: masks, gloves, proper dosage).\\n    Always warn the farmer to check the labels and consult local agricultural extension officers for critical issues.\\n    If you recommend a chemical pesticide, remind the farmer about safety and request confirmation before generating a full prescription by calling the `request_human_confirmation` tool.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Analyzes a base64 encoded crop image using Gemini Vision to diagnose disease, pest, or weed issues.\\nProvides detailed treatment plans, organic alternatives, and recovery estimates.\\n\\nArgs:\\n    image_base64: Base64-encoded string of the crop/leaf image.\\n    crop_name: Optional name of the crop (e.g. \\\"tomato\\\", \\\"paddy\\\") to guide diagnosis.\\n\\nReturns:\\n    A dictionary with the diagnosis, treatments, and recovery timeline.\", \"name\": \"diagnose_crop_disease\", \"parameters_json_schema\": {\"properties\": {\"image_base64\": {\"title\": \"Image Base64\", \"type\": \"string\"}, \"crop_name\": {\"anyOf\": [{\"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"title\": \"Crop Name\"}}, \"required\": [\"image_base64\"], \"title\": \"diagnose_crop_diseaseParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}, {\"function_declarations\": [{\"description\": \"Requests explicit human/farmer confirmation before executing critical actions\\nlike chemical spray recommendations or submitting subsidy applications.\\n\\nArgs:\\n    action_type: Type of action (e.g. \\\"Chemical Pesticide Application\\\", \\\"Drafting Subsidy Form\\\").\\n    details: Explanation of what is being approved.\\n\\nReturns:\\n    A dictionary indicating confirmation is pending.\", \"name\": \"request_human_confirmation\", \"parameters_json_schema\": {\"properties\": {\"action_type\": {\"title\": \"Action Type\", \"type\": \"string\"}, \"details\": {\"title\": \"Details\", \"type\": \"string\"}}, \"required\": [\"action_type\", \"details\"], \"title\": \"request_human_confirmationParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"weather_agent\": {\"agent_id\": \"weather_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in weather forecasting, weather alerts (rain, heat stress, frost), and rain-adjusted watering schedules.\", \"instruction\": \"You are the Weather Advisor Agent.\\n    Your capability is to retrieve weather forecasts and translate them into actionable farming advice.\\n    Use `get_weather_forecast` to check the forecast for the farmer's location.\\n    Suggest watering/irrigation adjustments using `recommend_irrigation` depending on growth stage and rain alerts.\\n    Warn the farmer of crop hazards like frost, high heat, and rain, advising on protections.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Retrieves current weather conditions and forecast for a given farming location.\\nProvides alerts for rain, frost, heat stress, and suggests general precautions.\\n\\nArgs:\\n    location: Name of the village, city, or district (e.g., \\\"Pune\\\", \\\"Nashik\\\", \\\"Iowa\\\").\\n    date: Optional date in YYYY-MM-DD format.\\n\\nReturns:\\n    A dictionary containing weather parameters and farming advisories.\", \"name\": \"get_weather_forecast\", \"parameters_json_schema\": {\"properties\": {\"location\": {\"title\": \"Location\", \"type\": \"string\"}, \"date\": {\"anyOf\": [{\"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"title\": \"Date\"}}, \"required\": [\"location\"], \"title\": \"get_weather_forecastParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}, {\"function_declarations\": [{\"description\": \"Generates a watering schedule based on crop growth stage and upcoming rain forecast.\\n\\nArgs:\\n    crop: Crop name (e.g. \\\"tomato\\\").\\n    stage: Growth stage (\\\"vegetative\\\", \\\"flowering\\\", \\\"fruiting\\\", \\\"harvesting\\\").\\n    rain_forecast: Expected rain (\\\"heavy\\\", \\\"moderate\\\", \\\"none\\\").\\n\\nReturns:\\n    Watering recommendations.\", \"name\": \"recommend_irrigation\", \"parameters_json_schema\": {\"properties\": {\"crop\": {\"title\": \"Crop\", \"type\": \"string\"}, \"stage\": {\"title\": \"Stage\", \"type\": \"string\"}, \"rain_forecast\": {\"title\": \"Rain Forecast\", \"type\": \"string\"}}, \"required\": [\"crop\", \"stage\", \"rain_forecast\"], \"title\": \"recommend_irrigationParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"market_agent\": {\"agent_id\": \"market_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in wholesale market prices (Mandi), price trends, nearby selling spots, and optimal sell-timing strategies.\", \"instruction\": \"You are the Market Agent.\\n    Your capability is to fetch wholesale Mandi prices for crops in nearby markets and recommend selling strategies.\\n    Use the `search_market_prices` tool.\\n    Analyze price trends, list the closest markets, suggest the best days to sell, and advise on post-harvest handling (like drying or cooling) to maximize profits.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Retrieves current wholesale prices (Mandi prices) in nearby markets for the crop,\\nrecommends the best times to sell, and analyzes price trends.\\n\\nArgs:\\n    crop: Name of the crop (e.g. \\\"paddy\\\", \\\"tomato\\\").\\n    location: Farming location/district.\\n\\nReturns:\\n    Market price range, trend, and selling strategy.\", \"name\": \"search_market_prices\", \"parameters_json_schema\": {\"properties\": {\"crop\": {\"title\": \"Crop\", \"type\": \"string\"}, \"location\": {\"title\": \"Location\", \"type\": \"string\"}}, \"required\": [\"crop\", \"location\"], \"title\": \"search_market_pricesParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"finance_agent\": {\"agent_id\": \"finance_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in N-P-K fertilizer schedules, bag requirements, soil type adjustments, organic alternatives, and cost estimates.\", \"instruction\": \"You are the Finance and Soil Advisor Agent.\\n    Your capability is to calculate soil nutrient/fertilizer requirements, cost estimates, and fertilizer schedules.\\n    Use the `calculate_fertilizer_and_soil` tool.\\n    Provide exact split dosages of N-P-K (Nitrogen, Phosphorus, Potassium) in terms of urea, SSP, and MOP bags.\\n    Suggest organic alternatives (vermicompost, green manure) to improve long-term soil biology.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Calculates custom N-P-K (Nitrogen, Phosphorus, Potassium) fertilizer schedules,\\nrecommends dosages, and provides organic alternatives for soil health improvement.\\n\\nArgs:\\n    crop: Crop name (e.g. \\\"tomato\\\", \\\"paddy\\\").\\n    acreage: Farm size in acres (e.g. 3.0, 1.5).\\n    soil_type: Type of soil (\\\"loamy\\\", \\\"clayey\\\", \\\"sandy\\\").\\n\\nReturns:\\n    Fertilizer scheduling, bags required, and soil tips.\", \"name\": \"calculate_fertilizer_and_soil\", \"parameters_json_schema\": {\"properties\": {\"crop\": {\"title\": \"Crop\", \"type\": \"string\"}, \"acreage\": {\"title\": \"Acreage\", \"type\": \"number\"}, \"soil_type\": {\"default\": \"loamy\", \"title\": \"Soil Type\", \"type\": \"string\"}}, \"required\": [\"crop\", \"acreage\"], \"title\": \"calculate_fertilizer_and_soilParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"government_agent\": {\"agent_id\": \"government_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in agricultural subsidies, government schemes, crop insurance, solar pumps, and eligibility requirements.\", \"instruction\": \"You are the Government Schemes Advisor Agent.\\n    Your capability is to explain agricultural schemes, subsidies, eligibility, and required documents.\\n    Use the `search_government_schemes` tool.\\n    Check if the farmer is eligible for irrigation, solar pump, crop insurance, or organic subsidies, and walk them through required paperwork.\\n    Before generating a pre-filled subsidy application draft, tell the farmer what you will draft and let them know that their confirmation is required by calling the `request_human_confirmation` tool.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Searches web/Tavily or agricultural database for government subsidies, agricultural schemes,\\nand insurance schemes matching the crop and region.\\n\\nArgs:\\n    crop: Crop name (e.g. \\\"paddy\\\", \\\"tomato\\\").\\n    state: State or region (e.g. \\\"Maharashtra\\\", \\\"Telangana\\\").\\n\\nReturns:\\n    A list of matching subsidies and details.\", \"name\": \"search_government_schemes\", \"parameters_json_schema\": {\"properties\": {\"crop\": {\"title\": \"Crop\", \"type\": \"string\"}, \"state\": {\"title\": \"State\", \"type\": \"string\"}}, \"required\": [\"crop\", \"state\"], \"title\": \"search_government_schemesParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}, {\"function_declarations\": [{\"description\": \"Requests explicit human/farmer confirmation before executing critical actions\\nlike chemical spray recommendations or submitting subsidy applications.\\n\\nArgs:\\n    action_type: Type of action (e.g. \\\"Chemical Pesticide Application\\\", \\\"Drafting Subsidy Form\\\").\\n    details: Explanation of what is being approved.\\n\\nReturns:\\n    A dictionary indicating confirmation is pending.\", \"name\": \"request_human_confirmation\", \"parameters_json_schema\": {\"properties\": {\"action_type\": {\"title\": \"Action Type\", \"type\": \"string\"}, \"details\": {\"title\": \"Details\", \"type\": \"string\"}}, \"required\": [\"action_type\", \"details\"], \"title\": \"request_human_confirmationParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}, \"report_agent\": {\"agent_id\": \"report_agent\", \"agent_type\": \"LlmAgent\", \"description\": \"Specialist in scheduling follow-up calendar reminders and archiving crop plans and diagnoses in Google Drive.\", \"instruction\": \"You are the Report and Reminders Agent.\\n    Your capability is to save logs to Drive and schedule reminders in the Google Calendar.\\n    Use `save_to_drive` to archive plans and diagnosis history.\\n    Use `schedule_calendar_reminder` to schedule fertilizer applications, sprays, or follow-ups.\\n    Provide the farmer with confirmation of what was scheduled/saved.\", \"tools\": [{\"function_declarations\": [{\"description\": \"Saves the generated weekly crop plan or diagnosis report to the farmer's Google Drive.\\nDemonstrates Drive MCP tool integration.\\n\\nArgs:\\n    filename: Name of the file (e.g. \\\"tomato_diagnosis_report.txt\\\").\\n    report_content: Detailed plan or advice.\\n\\nReturns:\\n    Drive file metadata.\", \"name\": \"save_to_drive\", \"parameters_json_schema\": {\"properties\": {\"filename\": {\"title\": \"Filename\", \"type\": \"string\"}, \"report_content\": {\"title\": \"Report Content\", \"type\": \"string\"}}, \"required\": [\"filename\", \"report_content\"], \"title\": \"save_to_driveParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}, {\"function_declarations\": [{\"description\": \"Schedules a calendar reminder for a specific farming activity (e.g. fertilizer dose, follow-up check).\\nDemonstrates Calendar MCP tool integration.\\n\\nArgs:\\n    event_title: The title of the farming reminder.\\n    event_date: Date of the event (YYYY-MM-DD).\\n    description: Details of the activity.\\n\\nReturns:\\n    A confirmation dictionary.\", \"name\": \"schedule_calendar_reminder\", \"parameters_json_schema\": {\"properties\": {\"event_title\": {\"title\": \"Event Title\", \"type\": \"string\"}, \"event_date\": {\"title\": \"Event Date\", \"type\": \"string\"}, \"description\": {\"title\": \"Description\", \"type\": \"string\"}}, \"required\": [\"event_title\", \"event_date\", \"description\"], \"title\": \"schedule_calendar_reminderParams\", \"type\": \"object\"}, \"response_json_schema\": {\"additionalProperties\": true, \"type\": \"object\"}}]}], \"sub_agents\": []}}, \"turns\": [{\"turn_index\": 0, \"turn_id\": \"turn_0\", \"events\": [{\"author\": \"coordinator_agent\", \"content\": {\"parts\": [{\"function_call\": {\"id\": \"adk-c922feae-c721-4541-9206-84d7523e8c52\", \"args\": {\"agent_name\": \"weather_agent\"}, \"name\": \"transfer_to_agent\"}}], \"role\": \"model\"}}, {\"author\": \"coordinator_agent\", \"content\": {\"parts\": [{\"function_response\": {\"id\": \"adk-c922feae-c721-4541-9206-84d7523e8c52\", \"name\": \"transfer_to_agent\", \"response\": {\"result\": null}}}], \"role\": \"user\"}}, {\"author\": \"weather_agent\", \"content\": {\"parts\": [{\"function_call\": {\"id\": \"adk-ca3a9ca8-22a4-4636-8e3f-5dbf2d0978b9\", \"args\": {\"location\": \"San Francisco\"}, \"name\": \"get_weather_forecast\"}}], \"role\": \"model\"}}, {\"author\": \"weather_agent\", \"content\": {\"parts\": [{\"function_response\": {\"id\": \"adk-ca3a9ca8-22a4-4636-8e3f-5dbf2d0978b9\", \"name\": \"get_weather_forecast\", \"response\": {\"location\": \"San Francisco\", \"temperature\": \"16.08\u00b0C\", \"humidity\": \"79%\", \"wind_speed\": \"3.58 m/s\", \"conditions\": \"overcast clouds\", \"alerts\": [\"No active weather alerts. Safe for standard field operations.\"], \"source\": \"OpenWeatherMap API\"}}}], \"role\": \"user\"}}, {\"author\": \"weather_agent\", \"content\": {\"parts\": [{\"text\": \"The weather in San Francisco is overcast with a temperature of 16.08\u00b0C, 79% humidity, and a wind speed of 3.58 m/s. There are no active weather alerts.\"}], \"role\": \"model\"}}]}]}"
+      }
+    ]
+  },
+  "agent_info": null
+}
