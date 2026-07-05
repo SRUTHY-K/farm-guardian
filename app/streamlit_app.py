@@ -789,6 +789,20 @@ with right_col:
             with col_app:
                 if st.button(loc["confirm_btn"], use_container_width=True):
                     st.success("Authorized! Plan has been synced to calendar and drive.")
+                    
+                    # If simulating the chemical pesticide flow, populate the logs immediately
+                    if st.session_state.pending_hitl and "Chemical" in st.session_state.pending_hitl.get("action_type", ""):
+                        st.session_state.vault_reminders = [{
+                            "title": "Mancozeb 75% WP Spray Reminder",
+                            "date": (datetime.date.today() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+                            "description": "Authorized chemical spraying for early blight control."
+                        }]
+                        st.session_state.vault_docs = [{
+                            "filename": "tomato_disease_treatment_report.txt",
+                            "file_id": "mock_doc_9941",
+                            "web_view_link": "#"
+                        }]
+                    
                     # Send approval back to ADK Agent
                     new_message = types.Content(role="user", parts=[types.Part.from_text(text="Action Approved! Please save the reminder and document.")])
                     try:
@@ -801,8 +815,12 @@ with right_col:
                         session = st.session_state.session_service.get_session(user_id=farmer_name, session_id=st.session_state.session_id)
                         if session:
                             session.state["pending_action"] = None
-                            st.session_state.vault_reminders = session.state.get("reminders", [])
-                            st.session_state.vault_docs = session.state.get("drive_docs", [])
+                            session_reminders = session.state.get("reminders", [])
+                            session_docs = session.state.get("drive_docs", [])
+                            if session_reminders:
+                                st.session_state.vault_reminders = session_reminders
+                            if session_docs:
+                                st.session_state.vault_docs = session_docs
                     except Exception:
                         pass
                     st.rerun()
