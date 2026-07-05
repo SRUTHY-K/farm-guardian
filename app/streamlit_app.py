@@ -386,7 +386,7 @@ if "agent_viz_state" not in st.session_state:
         "Crop Doctor": "inactive",
         "Weather Agent": "inactive",
         "Market Agent": "inactive",
-        "Fertilizer Agent": "inactive",
+        "Finance & Soil Agent": "inactive",
         "Planner Agent": "inactive",
         "findings": {
             "disease": "--",
@@ -508,9 +508,9 @@ with left_col:
             ("🔍 Crop Doctor analyzing image symptoms...", ["Coordinator Agent", "Crop Doctor"]),
             ("🌦 Weather Agent checking local weather forecast...", ["Coordinator Agent", "Crop Doctor", "Weather Agent"]),
             ("📈 Market Agent checking regional mandi prices...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent"]),
-            ("🧪 Fertilizer Agent validating dosage safety...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Fertilizer Agent"]),
-            ("📝 Planner Agent compiling weekly plan...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Fertilizer Agent", "Planner Agent"]),
-            ("✅ Final advice compiled successfully!", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Fertilizer Agent", "Planner Agent"])
+            ("🧪 Finance & Soil Agent validating dosage safety...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent"]),
+            ("📝 Planner Agent compiling weekly plan...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Planner Agent"]),
+            ("✅ Final advice compiled successfully!", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Planner Agent"])
         ]
         
         st.session_state.trajectory = []
@@ -631,6 +631,7 @@ with right_col:
                         "crop": "🟢",
                         "weather": "🔵",
                         "market": "🟠",
+                        "finance": "🟡",
                         "fertilizer": "🟡",
                         "planner": "🟣"
                     }
@@ -886,7 +887,7 @@ with col_demo1:
             "Crop Doctor": "active",
             "Weather Agent": "inactive",
             "Market Agent": "inactive",
-            "Fertilizer Agent": "inactive",
+            "Finance & Soil Agent": "inactive",
             "Planner Agent": "inactive",
             "findings": {
                 "disease": "Tomato Early Blight",
@@ -987,7 +988,7 @@ with col_demo2:
             "Crop Doctor": "inactive",
             "Weather Agent": "active",
             "Market Agent": "inactive",
-            "Fertilizer Agent": "inactive",
+            "Finance & Soil Agent": "inactive",
             "Planner Agent": "active",
             "findings": {
                 "disease": "--",
@@ -1071,7 +1072,7 @@ with col_demo3:
             "Crop Doctor": "inactive",
             "Weather Agent": "inactive",
             "Market Agent": "active",
-            "Fertilizer Agent": "inactive",
+            "Finance & Soil Agent": "inactive",
             "Planner Agent": "inactive",
             "findings": {
                 "disease": "--",
