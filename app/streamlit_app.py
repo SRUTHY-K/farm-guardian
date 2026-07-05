@@ -803,6 +803,12 @@ with right_col:
                             "file_id": "mock_doc_9941",
                             "web_view_link": "#"
                         }]
+                    elif st.session_state.pending_hitl and "Subsidy" in st.session_state.pending_hitl.get("action_type", ""):
+                        st.session_state.vault_docs = [{
+                            "filename": "PM_KUSUM_SolarPump_Application_Draft.pdf",
+                            "file_id": "mock_gov_3829",
+                            "web_view_link": "#"
+                        }]
                     
                     # Send approval back to ADK Agent
                     new_message = types.Content(role="user", parts=[types.Part.from_text(text="Action Approved! Please save the reminder and document.")])
@@ -860,10 +866,11 @@ with right_col:
 # Quick Demo Scenario Triggering
 st.markdown("---")
 st.subheader("⚡ Quick Demo Scenarios (Pre-loaded for Judges)")
-col_demo1, col_demo2, col_demo3 = st.columns(3)
+row1_cols = st.columns(3)
+row2_cols = st.columns(2)
 
-with col_demo1:
-    if st.button("🌿 Simulate Disease Diagnosis Flow"):
+with row1_cols[0]:
+    if st.button("🌿 Simulate Disease Diagnosis Flow", use_container_width=True):
         # 1. Set Chat History
         if preferred_lang == "Hindi (हिन्दी)":
             st.session_state.chat_history = [
@@ -963,8 +970,8 @@ with col_demo1:
         
         st.rerun()
 
-with col_demo2:
-    if st.button("🌦️ Simulate Weather & Watering plan"):
+with row1_cols[1]:
+    if st.button("🌦️ Simulate Weather & Watering plan", use_container_width=True):
         # 1. Set Chat History
         if preferred_lang == "Hindi (हिन्दी)":
             st.session_state.chat_history = [
@@ -1047,8 +1054,8 @@ with col_demo2:
         
         st.rerun()
 
-with col_demo3:
-    if st.button("💰 Simulate Mandi Price lookup"):
+with row1_cols[2]:
+    if st.button("💰 Simulate Mandi Price lookup", use_container_width=True):
         # 1. Set Chat History
         if preferred_lang == "Hindi (हिन्दी)":
             st.session_state.chat_history = [
@@ -1109,5 +1116,137 @@ with col_demo3:
         
         # 6. Timeline state
         st.session_state.timeline_state = "Market"
+        
+        st.rerun()
+
+with row2_cols[0]:
+    if st.button("🧪 Simulate Fertilizer & Soil plan", use_container_width=True):
+        # 1. Set Chat History
+        if preferred_lang == "Hindi (हिन्दी)":
+            st.session_state.chat_history = [
+                ("User", "मेरी 3 एकड़ टमाटर की फसल के लिए उर्वरक आवश्यकता क्या है?"),
+                ("Agent", "उर्वरक आवश्यकता (3 एकड़ टमाटर):\n- यूरिया: 6.5 बैग (नाइट्रोजन)\n- एसएसपी: 15.0 बैग (फास्फोरस)\n- एमओपी: 6.0 बैग (पोटेशियम)\n\nछिड़काव अनुसूची: बेसल खुराक के रूप में 3 बैग यूरिया, 10 बैग एसएसपी और 3 बैग एमओपी डालें। शेष को फूल आने और फल बनने की अवस्था में विभाजित करें।")
+            ]
+        elif preferred_lang == "Marathi (मराठी)":
+            st.session_state.chat_history = [
+                ("User", "माझ्या 3 एकर टोमॅटो पिकासाठी खत नियोजन काय आहे?"),
+                ("Agent", "खत नियोजन (3 एकर टोमॅटो):\n- युरिया: 6.5 बॅग (नायट्रोजन)\n- एसएसपी: 15.0 बॅग (फॉस्फरस)\n- एमओपी: 6.0 बॅग (पोटॅशियम)\n\nफवारणी वेळापत्रक: पेरणीच्या वेळी 3 बॅग युरिया, 10 बॅग एसएसपी आणि 3 बॅग एमओपी द्या. उर्वरित मात्रा फुले व फळे येण्याच्या वेळी विभागून द्या.")
+            ]
+        else:
+            st.session_state.chat_history = [
+                ("User", "What is my fertilizer requirement for 3 acres of tomatoes?"),
+                ("Agent", "Fertilizer Requirements (3 Acres Tomato):\n- Urea (N): 6.5 bags\n- SSP (P): 15.0 bags\n- MOP (K): 6.0 bags\n\nSplit Dosage Plan:\n1. Basal: Apply 3 bags Urea, 10 bags SSP, and 3 bags MOP.\n2. Flowering (Week 4): Apply 2 bags Urea and 1.5 bags MOP.\n3. Fruiting (Week 8): Apply remaining 1.5 bags Urea and 1.5 bags MOP.")
+            ]
+            
+        # 2. Update visible agent viz
+        st.session_state.agent_viz_state = {
+            "Coordinator Agent": "active",
+            "Crop Doctor": "inactive",
+            "Weather Agent": "inactive",
+            "Market Agent": "inactive",
+            "Finance & Soil Agent": "active",
+            "Planner Agent": "inactive",
+            "findings": {
+                "disease": "--",
+                "weather": "--",
+                "market": "--",
+                "fertilizer": "6.5 Urea, 15 SSP, 6 MOP",
+                "plan": "--"
+            }
+        }
+        
+        # 3. Update Trajectory
+        st.session_state.trajectory = [
+            "Query soil nutrient requirements",
+            "Calibrate dosage for 3.0 acres clayey soil",
+            "Generate stage-based split-dosage plan"
+        ]
+        
+        # 4. Activate skills
+        st.session_state.skills_activated = {
+            "crop_disease": False,
+            "fertilizer": True,
+            "irrigation": False,
+            "weekly_planner": True,
+            "pesticide": False
+        }
+        
+        # 5. Economics panel
+        st.session_state.economics_panel = {
+            "cost": "₹2,400",
+            "yield_saved": "14%",
+            "roi": "4.2x"
+        }
+        
+        # 6. Weekly Planner Table
+        st.session_state.weekly_planner_table = [
+            {"day": "Monday", "task": "Apply basal dosage (3 bags Urea + 10 bags SSP + 3 bags MOP)", "done": False},
+            {"day": "Wednesday", "task": "Prepare organic vermicompost topsoil layer", "done": False},
+            {"day": "Friday", "task": "Perform leaf moisture check before next fertilization", "done": True}
+        ]
+        
+        # 7. Timeline state
+        st.session_state.timeline_state = "Treatment"
+        
+        st.rerun()
+
+with row2_cols[1]:
+    if st.button("🏛️ Simulate Government Subsidy Check", use_container_width=True):
+        # 1. Set Chat History
+        if preferred_lang == "Hindi (हिन्दी)":
+            st.session_state.chat_history = [
+                ("User", "क्या मुझे महाराष्ट्र में सोलर पंप या ड्रिप सिंचाई के लिए कोई सब्सिडी मिल सकती है?"),
+                ("Agent", "उपलब्ध कृषि योजनाएं (महाराष्ट्र):\n1. पीएम-कुसुम सोलर पंप योजना: 5 एकड़ से कम जोत वाले किसानों के लिए 90% सब्सिडी।\n2. पीएम कृषि सिंचाई योजना: ड्रिप सिंचाई प्रणाली स्थापित करने के लिए लघु किसानों को 80% वित्तीय सहायता।\n\n⚠️ सुरक्षा चेतावनी: पीएम-कुसुम योजना के लिए पूर्व-भरा आवेदन फॉर्म तैयार करने के लिए आपकी पुष्टि आवश्यक है।")
+            ]
+        elif preferred_lang == "Marathi (मराठी)":
+            st.session_state.chat_history = [
+                ("User", "मला महाराष्ट्रात सोलर पंप किंवा ठिबक सिंचनासाठी काही अनुदान मिळू शकते का?"),
+                ("Agent", "कृषि योजना (महाराष्ट्र):\n१. पीएम-कुसुम सोलर पंप योजना: ५ एकरपेक्षा कमी जमीन असलेल्या शेतकऱ्यांसाठी ९०% अनुदान.\n२. पीएम कृषि सिंचन योजना: ठिबक सिंचनासाठी लघू शेतकऱ्यांना ८०% आर्थिक मदत.\n\n⚠️ सुरक्षा चेतावणी: पीएम-कुसुम योजनेचा अर्ज तयार करण्यासाठी तुमची मंजुरी आवश्यक आहे.")
+            ]
+        else:
+            st.session_state.chat_history = [
+                ("User", "Can I get any subsidies for solar pumps or drip irrigation in Maharashtra?"),
+                ("Agent", "Matched Agricultural Schemes (Maharashtra):\n1. **PM-KUSUM Solar Pump Scheme**: Offers up to 90% subsidy for installation of off-grid solar agricultural pumps for holdings under 5 acres.\n2. **PM Krishi Sinchayee Yojana (PMKSY)**: Provides up to 80% financial assistance for installing drip irrigation kits.\n\n⚠️ Safety Check: Generating a pre-filled application draft requires farmer's confirmation.")
+            ]
+            
+        # 2. Update visible agent viz
+        st.session_state.agent_viz_state = {
+            "Coordinator Agent": "active",
+            "Crop Doctor": "inactive",
+            "Weather Agent": "inactive",
+            "Market Agent": "inactive",
+            "Finance & Soil Agent": "inactive",
+            "Planner Agent": "inactive",
+            "findings": {
+                "disease": "--",
+                "weather": "--",
+                "market": "--",
+                "fertilizer": "--",
+                "plan": "Subsidy pre-fill"
+            }
+        }
+        
+        # 3. Update Trajectory
+        st.session_state.trajectory = [
+            "Query PM-KUSUM subsidy database",
+            "Verify acreage eligibility (3 acres is eligible)",
+            "Formulate subsidy draft application",
+            "Government Subsidy Safety check triggered"
+        ]
+        
+        # 4. Activate skills
+        st.session_state.skills_activated = {
+            "crop_disease": False,
+            "fertilizer": False,
+            "irrigation": True,
+            "weekly_planner": False,
+            "pesticide": False
+        }
+        
+        # 5. Set pending HITL action
+        st.session_state.pending_hitl = {
+            "action_type": "Pre-fill Government Subsidy Application",
+            "details": "Drafting pre-filled application form for PM-KUSUM Solar Pump Scheme under farmer Ramesh Kumar, Pune. System requires human approval before posting data to portal."
+        }
         
         st.rerun()
