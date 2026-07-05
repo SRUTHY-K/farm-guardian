@@ -64,9 +64,9 @@ crop_doctor_agent = Agent(
     1. Organic/Biological (preferred).
     2. Chemical (include safety gear warnings: masks, gloves, proper dosage).
     Always warn the farmer to check the labels and consult local agricultural extension officers for critical issues.
-    If you recommend a chemical pesticide, remind the farmer about safety and request confirmation before generating a full prescription.""",
+    If you recommend a chemical pesticide, remind the farmer about safety and request confirmation before generating a full prescription by calling the `request_human_confirmation` tool.""",
     description="Specialist in identifying plant diseases, leaf spots, insect pests, weeds, and recommending biological and chemical treatments.",
-    tools=[diagnose_crop_disease],
+    tools=[diagnose_crop_disease, request_human_confirmation],
 )
 
 # 2. Weather Agent (Forecasts & Irrigation)
@@ -115,9 +115,9 @@ government_agent = Agent(
     Your capability is to explain agricultural schemes, subsidies, eligibility, and required documents.
     Use the `search_government_schemes` tool.
     Check if the farmer is eligible for irrigation, solar pump, crop insurance, or organic subsidies, and walk them through required paperwork.
-    Before generating a pre-filled subsidy application draft, tell the farmer what you will draft and let them know that their confirmation is required.""",
+    Before generating a pre-filled subsidy application draft, tell the farmer what you will draft and let them know that their confirmation is required by calling the `request_human_confirmation` tool.""",
     description="Specialist in agricultural subsidies, government schemes, crop insurance, solar pumps, and eligibility requirements.",
-    tools=[search_government_schemes],
+    tools=[search_government_schemes, request_human_confirmation],
 )
 
 # 6. Report & Reminders Agent (Calendar & Drive MCP Sync)
