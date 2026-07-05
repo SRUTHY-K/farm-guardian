@@ -578,6 +578,35 @@ with left_col:
             
         st.session_state.chat_history.append(("Agent", response_text))
         
+        # Dynamically reset visualizer nodes to show only the agents that actually responded
+        for node in st.session_state.agent_viz_state:
+            if node != "findings":
+                st.session_state.agent_viz_state[node] = "inactive"
+        
+        st.session_state.agent_viz_state["Coordinator Agent"] = "active"
+        
+        r_low = response_text.lower()
+        q_low = query_text.lower()
+        
+        # 1. Crop Doctor matching
+        if any(w in r_low or w in q_low for w in ["doctor", "blight", "disease", "pest", "leaf", "रोग", "कीड", "पाने"]) or uploaded_file:
+            st.session_state.agent_viz_state["Crop Doctor"] = "active"
+        # 2. Weather matching
+        if any(w in r_low or w in q_low for w in ["weather", "rain", "forecast", "water", "irrigation", "मौसम", "हवामान", "पाऊस", "सिंचन"]):
+            st.session_state.agent_viz_state["Weather Agent"] = "active"
+        # 3. Market matching
+        if any(w in r_low or w in q_low for w in ["price", "mandi", "market", "भाव", "बाजार", "दर", "खरेदी"]):
+            st.session_state.agent_viz_state["Market Agent"] = "active"
+        # 4. Soil & Finance matching
+        if any(w in r_low or w in q_low for w in ["fertilizer", "urea", "ssp", "mop", "soil", "उर्वरक", "खत", "माती"]):
+            st.session_state.agent_viz_state["Finance & Soil Agent"] = "active"
+        # 5. Government Schemes matching
+        if any(w in r_low or w in q_low for w in ["subsidy", "scheme", "kusum", "government", "अनुदान", "योजना"]):
+            st.session_state.agent_viz_state["Government Agent"] = "active"
+        # 6. Planner / Reminders matching
+        if any(w in r_low or w in q_low for w in ["save", "drive", "calendar", "reminder", "sync", "सहेज", "स्मरणपत्र", "कॅलेंडर"]):
+            st.session_state.agent_viz_state["Planner Agent"] = "active"
+
         try:
             session = st.session_state.session_service.get_session(user_id=farmer_name, session_id=st.session_state.session_id)
             if session:
