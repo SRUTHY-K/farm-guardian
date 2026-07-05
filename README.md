@@ -71,7 +71,7 @@ The application features progressive disclosure of capabilities via separate Age
 
 ### 📊 Evaluation Scorecard
 
-We run automated evaluations using the Gemini Enterprise Agent Platform SDK to assess output safety, relevance, and accuracy.
+Automated evaluations are run using the Google GenAI Agent SDK (ADK) to assess output safety, relevance, and accuracy.
 
 ```bash
 # 1. Generate run traces
