@@ -1,0 +1,32 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "tomato_disease_diagnosis",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "My tomato leaves have yellow spots. What is the disease and what should I do?"}]
+      }
+    },
+    {
+      "eval_case_id": "weekly_paddy_plan",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "I have 3 acres of paddy in Pune. What should I do this week?"}]
+      }
+    },
+    {
+      "eval_case_id": "organic_subsidies_maharashtra",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Are there any government subsidies for organic farming in Maharashtra?"}]
+      }
+    },
+    {
+      "eval_case_id": "tomato_mandi_prices",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "What is the market price of tomato in Pune today?"}]
+      }
+    }
+  ]
+}
