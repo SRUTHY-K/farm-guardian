@@ -387,6 +387,7 @@ if "agent_viz_state" not in st.session_state:
         "Weather Agent": "inactive",
         "Market Agent": "inactive",
         "Finance & Soil Agent": "inactive",
+        "Government Agent": "inactive",
         "Planner Agent": "inactive",
         "findings": {
             "disease": "--",
@@ -455,6 +456,8 @@ def get_badge_class(agent_name):
         return "badge-weather"
     elif "market" in clean:
         return "badge-market"
+    elif "government" in clean or "scheme" in clean:
+        return "badge-market"
     elif "finance" in clean or "soil" in clean:
         return "badge-fertilizer"
     elif "planner" in clean:
@@ -509,8 +512,9 @@ with left_col:
             ("🌦 Weather Agent checking local weather forecast...", ["Coordinator Agent", "Crop Doctor", "Weather Agent"]),
             ("📈 Market Agent checking regional mandi prices...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent"]),
             ("🧪 Finance & Soil Agent validating dosage safety...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent"]),
-            ("📝 Planner Agent compiling weekly plan...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Planner Agent"]),
-            ("✅ Final advice compiled successfully!", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Planner Agent"])
+            ("🏛️ Government Schemes Agent finding subsidies...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent"]),
+            ("📝 Planner Agent compiling weekly plan...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent", "Planner Agent"]),
+            ("✅ Final advice compiled successfully!", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent", "Planner Agent"])
         ]
         
         st.session_state.trajectory = []
@@ -895,6 +899,7 @@ with row1_cols[0]:
             "Weather Agent": "inactive",
             "Market Agent": "inactive",
             "Finance & Soil Agent": "inactive",
+            "Government Agent": "inactive",
             "Planner Agent": "inactive",
             "findings": {
                 "disease": "Tomato Early Blight",
@@ -996,6 +1001,7 @@ with row1_cols[1]:
             "Weather Agent": "active",
             "Market Agent": "inactive",
             "Finance & Soil Agent": "inactive",
+            "Government Agent": "inactive",
             "Planner Agent": "active",
             "findings": {
                 "disease": "--",
@@ -1080,6 +1086,7 @@ with row1_cols[2]:
             "Weather Agent": "inactive",
             "Market Agent": "active",
             "Finance & Soil Agent": "inactive",
+            "Government Agent": "inactive",
             "Planner Agent": "inactive",
             "findings": {
                 "disease": "--",
@@ -1145,6 +1152,7 @@ with row2_cols[0]:
             "Weather Agent": "inactive",
             "Market Agent": "inactive",
             "Finance & Soil Agent": "active",
+            "Government Agent": "inactive",
             "Planner Agent": "inactive",
             "findings": {
                 "disease": "--",
@@ -1216,6 +1224,7 @@ with row2_cols[1]:
             "Weather Agent": "inactive",
             "Market Agent": "inactive",
             "Finance & Soil Agent": "inactive",
+            "Government Agent": "active",
             "Planner Agent": "inactive",
             "findings": {
                 "disease": "--",
