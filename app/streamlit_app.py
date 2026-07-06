@@ -230,7 +230,7 @@ def get_badge_class(agent_name):
     return "badge-coordinator"
 
 # Dynamic Insight Banner / Summary Metrics
-st.markdown("### Farm Insights Dashboard")
+st.markdown(f"### {loc['dashboard_title']}")
 col_health, col_weather, col_market, col_task = st.columns(4)
 
 with col_health:
@@ -238,9 +238,9 @@ with col_health:
     health_color = "#dc2626" if health_status == "Action Required" else "#16a34a"
     st.markdown(f"""
     <div class='dashboard-card' style='border-top: 4px solid {health_color}; min-height: 110px;'>
-        <div class='card-title'>Crop Health</div>
+        <div class='card-title'>{loc['crop_health_card']}</div>
         <div class='metric-value' style='color: {health_color}; font-size: 1.3rem;'>{health_status}</div>
-        <div class='metric-sub'>Crop: {crop_type}</div>
+        <div class='metric-sub'>{loc['crop_label']}: {crop_type}</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -251,9 +251,9 @@ with col_weather:
     weather_color = "#3b82f6" if weather_desc == "Rain Forecasted" else "#22c55e"
     st.markdown(f"""
     <div class='dashboard-card' style='border-top: 4px solid {weather_color}; min-height: 110px;'>
-        <div class='card-title'>Weather Outlook</div>
+        <div class='card-title'>{loc['weather_outlook_card']}</div>
         <div class='metric-value' style='color: {weather_color}; font-size: 1.3rem;'>{weather_desc}</div>
-        <div class='metric-sub'>Rain Prob: {rain_prob}</div>
+        <div class='metric-sub'>{loc['rain_prob_label']}: {rain_prob}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -273,14 +273,14 @@ with col_market:
     market_color = "#f97316"
     st.markdown(f"""
     <div class='dashboard-card' style='border-top: 4px solid {market_color}; min-height: 110px;'>
-        <div class='card-title'>Market Value</div>
+        <div class='card-title'>{loc['market_value_card']}</div>
         <div class='metric-value' style='color: #475569; font-size: 1.3rem;'>{price_val}</div>
-        <div class='metric-sub'>Trend: {trend_val}</div>
+        <div class='metric-sub'>{loc['trend_label']}: {trend_val}</div>
     </div>
     """, unsafe_allow_html=True)
 
 with col_task:
-    next_task = "No pending tasks"
+    next_task = loc["no_pending_tasks"]
     if st.session_state.weekly_planner_table:
         for task in st.session_state.weekly_planner_table:
             if not task["done"]:
@@ -288,12 +288,12 @@ with col_task:
                 if len(next_task) > 30:
                     next_task = next_task[:27] + "..."
                 break
-    task_color = "#a855f7" if next_task != "No pending tasks" else "#cbd5e1"
+    task_color = "#a855f7" if next_task != loc["no_pending_tasks"] else "#cbd5e1"
     st.markdown(f"""
     <div class='dashboard-card' style='border-top: 4px solid {task_color}; min-height: 110px;'>
-        <div class='card-title'>Next Scheduled Task</div>
+        <div class='card-title'>{loc['next_task_card']}</div>
         <div class='metric-value' style='color: #6b21a8; font-size: 1rem; font-weight: 600; line-height: 1.2;'>{next_task}</div>
-        <div class='metric-sub'>Refer to Weekly Planner</div>
+        <div class='metric-sub'>{loc['refer_weekly_planner']}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -698,24 +698,24 @@ with right_col:
                 with cols_check[2]:
                     st.markdown(f"~~{item['task']}~~" if done else item["task"])
         else:
-            st.info("No planner tasks generated yet. Start a consultation turn or select a scenario below.")
+            st.info(loc["info_no_planner_tasks"])
 
     with tab_sec:
         # Google Account Integration Section
-        st.markdown("### Google Account Integration")
+        st.markdown(f"### {loc['google_integration_header']}")
         col_auth_status, col_auth_btn = st.columns([3, 2])
         with col_auth_status:
             if st.session_state.get("google_connected", False):
-                st.success("Connected to Google: ramesh.kumar@gmail.com")
+                st.success(loc["info_google_connected"])
             else:
-                st.warning("Google Account status: Disconnected")
+                st.warning(loc["info_google_disconnected"])
         with col_auth_btn:
             if st.session_state.get("google_connected", False):
-                if st.button("Disconnect Google Account", key="google_disconnect", use_container_width=True):
+                if st.button(loc["disconnect_btn"], key="google_disconnect", use_container_width=True):
                     st.session_state.google_connected = False
                     st.rerun()
             else:
-                if st.button("Connect Google Account", key="google_connect", use_container_width=True):
+                if st.button(loc["connect_btn"], key="google_connect", use_container_width=True):
                     st.session_state.google_connected = True
                     st.rerun()
         
@@ -783,43 +783,43 @@ with right_col:
                         st.rerun()
             with col_rej:
                 if st.button(loc["reject_btn"], use_container_width=True):
-                    st.warning("Action Rejected. Planning cancelled.")
+                    st.warning(loc["pesticide_reject_msg"])
                     st.session_state.pending_hitl = None
                     session = st.session_state.session_service.get_session(user_id=farmer_name, session_id=st.session_state.session_id)
                     if session:
                          session.state["pending_action"] = None
                     st.rerun()
         else:
-            st.success("No pending security overrides or approvals. Status secure.")
+            st.success(loc["no_pending_security"])
             
         # Synced Vault Records (Google Drive and Calendar MCP Sync logs)
         st.markdown("---")
-        st.markdown("### 🗄️ Google Drive & Calendar Sync Logs")
+        st.markdown(f"### {loc['google_sync_logs_header']}")
         
         col_c, col_d = st.columns(2)
         with col_c:
-            st.markdown("**Google Calendar Events**")
+            st.markdown(f"{loc['google_cal_events']}")
             if not st.session_state.get("google_connected", False):
-                st.warning("Please link your Google Account to enable calendar sync.")
+                st.warning(loc["link_google_cal"])
             elif st.session_state.vault_reminders:
                 for rem in st.session_state.vault_reminders:
                     st.markdown(f"✓ **{rem['title']}** ({rem['date']})")
             else:
-                st.info("No Calendar events synced yet.")
+                st.info(loc["no_cal_synced"])
                 
         with col_d:
-            st.markdown("**Google Drive Docs**")
+            st.markdown(f"{loc['google_drive_docs']}")
             if not st.session_state.get("google_connected", False):
-                st.warning("Please link your Google Account to enable drive archiving.")
+                st.warning(loc["link_google_drive"])
             elif st.session_state.vault_docs:
                 for doc in st.session_state.vault_docs:
                     st.markdown(f"✓ **{doc['filename']}**")
             else:
-                st.info("No Drive documents archived yet.")
+                st.info(loc["no_drive_synced"])
 
 # Quick Demo Scenario Triggering
 st.markdown("---")
-st.subheader("⚡ Quick Demo Scenarios (Pre-loaded for Judges)")
+st.subheader(loc["quick_demo_header"])
 row1_cols = st.columns(3)
 row2_cols = st.columns(2)
 
