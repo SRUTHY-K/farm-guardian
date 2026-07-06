@@ -7,13 +7,32 @@ import time
 from PIL import Image
 import io
 import logging
-
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from app.agent import root_agent
 from app.app_utils.localization import get_translations
 from app.app_utils.styles import inject_custom_css
+import streamlit.components.v1 as components
+
+def auto_scroll():
+    """Helper to scroll chat window to bottom via JS."""
+    components.html("""
+    <script>
+        const scrollChat = () => {
+            const doc = window.parent.document;
+            const scrollableDivs = doc.querySelectorAll('div[data-testid="stChatMessageContainer"], div[data-testid="stVerticalBlockBorderWrapper"] > div');
+            scrollableDivs.forEach(el => {
+                if (el.scrollHeight > el.clientHeight) {
+                    el.scrollTop = el.scrollHeight;
+                }
+            });
+        };
+        scrollChat();
+        setTimeout(scrollChat, 50);
+        setTimeout(scrollChat, 150);
+    </script>
+    """, height=0, width=0)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -21,9 +40,12 @@ logger = logging.getLogger("farm_guardian.app")
 logger.info("Initializing FarmGuardian Streamlit Application...")
 
 # Set Streamlit Page Configuration
+logo_path = os.path.join(os.path.dirname(__file__), "logo.png")
+logo_exists = os.path.exists(logo_path)
+
 st.set_page_config(
     page_title="FarmGuardian AI - Smart Farming Companion",
-    page_icon="🌱",
+    page_icon=Image.open(logo_path) if logo_exists else "🌱",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -31,17 +53,34 @@ st.set_page_config(
 # Inject custom CSS styling
 inject_custom_css()
 
-# Sidebar - Setup Preferred Language
-st.sidebar.image("https://cdn-icons-png.flaticon.com/512/2913/2913520.png", width=80)
+# Sidebar - Header Container (Logo + Title side-by-side)
+sidebar_header = st.sidebar.container()
+
 preferred_lang = st.sidebar.selectbox("Preferred Language / पसंदीदा भाषा / पसंतीची भाषा", [
     "English", 
     "Hindi (हिन्दी)", 
     "Marathi (मराठी)"
 ])
 
-
-# Load translations
+# Load translations and setup localized main strings
 loc = get_translations(preferred_lang)
+
+# Render logo and title inside the header container at the top of the sidebar
+col1, col2 = sidebar_header.columns([1, 2.5])
+with col1:
+    if logo_exists:
+        st.image(logo_path, use_container_width=True)
+    else:
+        st.image("https://cdn-icons-png.flaticon.com/512/2913/2913520.png", use_container_width=True)
+with col2:
+    st.markdown(
+        f"""
+        <div style="display: flex; align-items: center; height: 100%; min-height: 60px; justify-content: start;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; line-height: 1.1; margin: 0; padding: 0; color: #ffffff !important; word-wrap: break-word;">{loc['title']}</h2>
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
 
 # Sidebar - Settings & Farmer Profile (Memory/State)
 st.sidebar.markdown(f"### {loc['profile']}")
@@ -55,28 +94,15 @@ soil_type = st.sidebar.selectbox(loc["soil"], ["Loamy", "Sandy", "Clayey"])
 st.sidebar.markdown("---")
 st.sidebar.markdown(
     """
-    <div style="font-size: 0.85rem; color: #64748b; font-weight: 500; text-align: center; padding: 10px; background-color: rgba(241, 245, 249, 0.5); border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 15px;">
-        🎓 <b>Capstone Project</b><br>
-        5-Day AI Agents Intensive Vibe Coding Course<br>
-        <span style="color: #475569; font-weight: 600;">Google & Kaggle</span>
+    <div style="font-size: 0.9rem; color: #f1f5f9; font-weight: 500; text-align: center; padding: 12px; background-color: rgba(0, 0, 0, 0.35); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15); margin-top: 20px;">
+        🎓 <b style="color: #ffffff;">Capstone Project</b><br>
+        <span style="color: #cbd5e1;">5-Day AI Agents Intensive Vibe Coding Course</span><br>
+        <span style="color: #34a853; font-weight: 700;">Google & Kaggle</span>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Core Application Header
-col_title, col_logo = st.columns([6, 1])
-with col_title:
-    st.markdown(f"<h1 class='main-title'>{loc['title']}</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p class='tagline'>{loc['tagline']}</p>", unsafe_allow_html=True)
-with col_logo:
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    logo_path = os.path.join(os.path.dirname(__file__), "logo.png")
-    if os.path.exists(logo_path):
-        st.image(logo_path, width=80)
-    else:
-        st.image("https://cdn-icons-png.flaticon.com/512/4143/4143160.png", width=70)
 
 # Initialize Session states
 if "session_service" not in st.session_state:
@@ -181,6 +207,9 @@ if "explainability" not in st.session_state:
 if "weekly_planner_table" not in st.session_state:
     st.session_state.weekly_planner_table = []
 
+if "google_connected" not in st.session_state:
+    st.session_state.google_connected = False
+
 # Helper function to get correct badge color class
 def get_badge_class(agent_name):
     clean = agent_name.lower().replace("_agent", "")
@@ -193,12 +222,80 @@ def get_badge_class(agent_name):
     elif "market" in clean:
         return "badge-market"
     elif "government" in clean or "scheme" in clean:
-        return "badge-market"
+        return "badge-government"
     elif "finance" in clean or "soil" in clean:
         return "badge-fertilizer"
     elif "planner" in clean:
         return "badge-planner"
     return "badge-coordinator"
+
+# Dynamic Insight Banner / Summary Metrics
+st.markdown("### Farm Insights Dashboard")
+col_health, col_weather, col_market, col_task = st.columns(4)
+
+with col_health:
+    health_status = "Action Required" if st.session_state.agent_viz_state["findings"].get("disease", "--") != "--" else "Healthy"
+    health_color = "#dc2626" if health_status == "Action Required" else "#16a34a"
+    st.markdown(f"""
+    <div class='dashboard-card' style='border-top: 4px solid {health_color}; min-height: 110px;'>
+        <div class='card-title'>Crop Health</div>
+        <div class='metric-value' style='color: {health_color}; font-size: 1.3rem;'>{health_status}</div>
+        <div class='metric-sub'>Crop: {crop_type}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+with col_weather:
+    actual_rain = st.session_state.weather_panel.get("rain_prob", "--")
+    rain_prob = "15%" if actual_rain == "--" else actual_rain
+    weather_desc = "Rain Forecasted" if rain_prob != "--" and int(rain_prob.replace("%","")) > 50 else "Stable"
+    weather_color = "#3b82f6" if weather_desc == "Rain Forecasted" else "#22c55e"
+    st.markdown(f"""
+    <div class='dashboard-card' style='border-top: 4px solid {weather_color}; min-height: 110px;'>
+        <div class='card-title'>Weather Outlook</div>
+        <div class='metric-value' style='color: {weather_color}; font-size: 1.3rem;'>{weather_desc}</div>
+        <div class='metric-sub'>Rain Prob: {rain_prob}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_market:
+    price_val = st.session_state.market_panel.get("price", "--")
+    trend_val = st.session_state.market_panel.get("trend", "--")
+    
+    if price_val == "--":
+        defaults = {
+            "Tomato": ("₹2,600/q", "↑ 5.2% (Shortage)"),
+            "Paddy (Rice)": ("₹2,183/q", "Steady"),
+            "Wheat": ("₹2,275/q", "Steady"),
+            "Maize": ("₹1,960/q", "Stable")
+        }
+        price_val, trend_val = defaults.get(crop_type, ("₹2,100/q", "Stable"))
+        
+    market_color = "#f97316"
+    st.markdown(f"""
+    <div class='dashboard-card' style='border-top: 4px solid {market_color}; min-height: 110px;'>
+        <div class='card-title'>Market Value</div>
+        <div class='metric-value' style='color: #475569; font-size: 1.3rem;'>{price_val}</div>
+        <div class='metric-sub'>Trend: {trend_val}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_task:
+    next_task = "No pending tasks"
+    if st.session_state.weekly_planner_table:
+        for task in st.session_state.weekly_planner_table:
+            if not task["done"]:
+                next_task = task["task"]
+                if len(next_task) > 30:
+                    next_task = next_task[:27] + "..."
+                break
+    task_color = "#a855f7" if next_task != "No pending tasks" else "#cbd5e1"
+    st.markdown(f"""
+    <div class='dashboard-card' style='border-top: 4px solid {task_color}; min-height: 110px;'>
+        <div class='card-title'>Next Scheduled Task</div>
+        <div class='metric-value' style='color: #6b21a8; font-size: 1rem; font-weight: 600; line-height: 1.2;'>{next_task}</div>
+        <div class='metric-sub'>Refer to Weekly Planner</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Main UI layout columns: Left side = Consultation & upload, Right side = Decision Panels
 left_col, right_col = st.columns([5, 5])
@@ -225,9 +322,9 @@ with left_col:
             st.markdown(welcome_msg)
         for speaker, msg in st.session_state.chat_history:
             if speaker == "User":
-                st.markdown(f"<div class='chat-bubble user-bubble'>🧑‍🌾 <b>You:</b> {msg}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='chat-bubble user-bubble'><b>You:</b> {msg}</div>", unsafe_allow_html=True)
             else:
-                st.markdown(f"<div class='chat-bubble agent-bubble'>🤖 <b>FarmGuardian:</b> {msg}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='chat-bubble agent-bubble'><b>FarmGuardian:</b> {msg}</div>", unsafe_allow_html=True)
 
     # Chat Input
     with st.form("chat_form", clear_on_submit=True):
@@ -244,14 +341,14 @@ with left_col:
         thinking_placeholder = st.empty()
         
         steps = [
-            ("🧠 Coordinator Agent routing query...", ["Coordinator Agent"]),
-            ("🔍 Crop Doctor analyzing image symptoms...", ["Coordinator Agent", "Crop Doctor"]),
-            ("🌦 Weather Agent checking local weather forecast...", ["Coordinator Agent", "Crop Doctor", "Weather Agent"]),
-            ("📈 Market Agent checking regional mandi prices...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent"]),
-            ("🧪 Finance & Soil Agent validating dosage safety...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent"]),
-            ("🏛️ Government Schemes Agent finding subsidies...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent"]),
-            ("📝 Planner Agent compiling weekly plan...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent", "Planner Agent"]),
-            ("✅ Final advice compiled successfully!", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent", "Planner Agent"])
+            ("Coordinator Agent routing query...", ["Coordinator Agent"]),
+            ("Crop Doctor analyzing image symptoms...", ["Coordinator Agent", "Crop Doctor"]),
+            ("Weather Agent checking local weather forecast...", ["Coordinator Agent", "Crop Doctor", "Weather Agent"]),
+            ("Market Agent checking regional mandi prices...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent"]),
+            ("Finance & Soil Agent validating dosage safety...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent"]),
+            ("Government Schemes Agent finding subsidies...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent"]),
+            ("Planner Agent compiling weekly plan...", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent", "Planner Agent"]),
+            ("Final advice compiled successfully!", ["Coordinator Agent", "Crop Doctor", "Weather Agent", "Market Agent", "Finance & Soil Agent", "Government Agent", "Planner Agent"])
         ]
         
         st.session_state.trajectory = []
@@ -272,7 +369,7 @@ with left_col:
             if "Planner" in active_nodes:
                 st.session_state.skills_activated["weekly_planner"] = True
                 
-            thinking_placeholder.markdown(f"<div style='padding: 12px; background-color: #fef08a; border-left: 5px solid #eab308; border-radius: 8px; font-weight: bold; margin-bottom:1rem;'>{label}</div>", unsafe_allow_html=True)
+            thinking_placeholder.markdown(f"<div class='terminal-loader'><span class='pulse'></span>{label}</div>", unsafe_allow_html=True)
             time.sleep(0.1)
             
         thinking_placeholder.empty()
@@ -295,6 +392,13 @@ with left_col:
                 "language": preferred_lang
             }
             
+            # Render user query and prepare placeholder for agent stream in chat container
+            with chat_container:
+                st.markdown(f"<div class='chat-bubble user-bubble'><b>You:</b> {query_text}</div>", unsafe_allow_html=True)
+                agent_placeholder = st.empty()
+
+            # Prepare ADK payload and execute runner within a spinner loader
+            # (no action, keeping line alignments)
             response_text = ""
             try:
                 logger.info(f"Invoking ADK runner with session_id='{st.session_state.session_id}' for user='{farmer_name}'...")
@@ -309,13 +413,18 @@ with left_col:
                         for part in event.content.parts:
                             if part.text:
                                 response_text += part.text
+                                # Dynamically render response stream
+                                agent_placeholder.markdown(f"<div class='chat-bubble agent-bubble'><b>FarmGuardian:</b> {response_text}</div>", unsafe_allow_html=True)
+                                auto_scroll()
                 logger.info(f"ADK runner finished execution successfully. Response length: {len(response_text)} characters.")
             except Exception as e:
                 logger.error(f"ADK runner failed during execution: {e}", exc_info=True)
                 response_text = f"An error occurred during agent execution: {e}. Fallback advisor: Please consult local agricultural extension officer."
+                agent_placeholder.markdown(f"<div class='chat-bubble agent-bubble'><b>FarmGuardian:</b> {response_text}</div>", unsafe_allow_html=True)
             
             if not response_text:
                 response_text = "I have noted the details. Let me know if you would like me to archive this plan."
+                agent_placeholder.markdown(f"<div class='chat-bubble agent-bubble'><b>FarmGuardian:</b> {response_text}</div>", unsafe_allow_html=True)
 
         # Dynamically reset visualizer nodes to show only the agents that actually responded
         for node in st.session_state.agent_viz_state:
@@ -425,9 +534,9 @@ with left_col:
 
 with right_col:
     tab_orch, tab_decision, tab_plan, tab_sec = st.tabs([
-        "⛓️ Orchestration & Habilities",
+        "Orchestration & Capabilities",
         loc["decision_header"],
-        "📅 Planner & Timeline",
+        "Planner & Timeline",
         loc["security"]
     ])
     
@@ -438,13 +547,12 @@ with right_col:
         for node, status in st.session_state.agent_viz_state.items():
             if node != "findings":
                 if node == "Coordinator Agent":
-                    badge_class = "badge-coordinator" if status == "active" else "agent-inactive"
+                    badge_class = "badge-crop_doctor" if status == "active" else "agent-inactive"
                     icon = "🧠" if status == "active" else "💤"
                     st.markdown(f"<div class='agent-node {badge_class}'><span><b>Coordinator Agent</b> {icon}</span><span>Main Router</span></div>", unsafe_allow_html=True)
                 else:
                     node_clean = node.lower().split(" ")[0]
-                    badge_color_class = get_badge_class(node.lower().replace(" ", "_"))
-                    badge_class = f"{badge_color_class}" if status == "active" else "agent-inactive"
+                    badge_class = "badge-crop_doctor" if status == "active" else "agent-inactive"
                     
                     emojis = {
                         "crop": "🟢",
@@ -593,6 +701,26 @@ with right_col:
             st.info("No planner tasks generated yet. Start a consultation turn or select a scenario below.")
 
     with tab_sec:
+        # Google Account Integration Section
+        st.markdown("### Google Account Integration")
+        col_auth_status, col_auth_btn = st.columns([3, 2])
+        with col_auth_status:
+            if st.session_state.get("google_connected", False):
+                st.success("Connected to Google: ramesh.kumar@gmail.com")
+            else:
+                st.warning("Google Account status: Disconnected")
+        with col_auth_btn:
+            if st.session_state.get("google_connected", False):
+                if st.button("Disconnect Google Account", key="google_disconnect", use_container_width=True):
+                    st.session_state.google_connected = False
+                    st.rerun()
+            else:
+                if st.button("Connect Google Account", key="google_connect", use_container_width=True):
+                    st.session_state.google_connected = True
+                    st.rerun()
+        
+        st.markdown("---")
+        
         # Security & Human-In-The-Loop Overrides
         st.subheader(loc["pending_hitl"])
         
@@ -608,55 +736,58 @@ with right_col:
             col_app, col_rej = st.columns(2)
             with col_app:
                 if st.button(loc["confirm_btn"], use_container_width=True):
-                    st.success("Authorized! Plan has been synced to calendar and drive.")
-                    
-                    # If simulating the chemical pesticide flow, populate the logs immediately
-                    if st.session_state.pending_hitl and "Chemical" in st.session_state.pending_hitl.get("action_type", ""):
-                        st.session_state.vault_reminders = [{
-                            "title": "Mancozeb 75% WP Spray Reminder",
-                            "date": (datetime.date.today() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
-                            "description": "Authorized chemical spraying for early blight control."
-                        }]
-                        st.session_state.vault_docs = [{
-                            "filename": "tomato_disease_treatment_report.txt",
-                            "file_id": "mock_doc_9941",
-                            "web_view_link": "#"
-                        }]
-                    elif st.session_state.pending_hitl and "Subsidy" in st.session_state.pending_hitl.get("action_type", ""):
-                        st.session_state.vault_docs = [{
-                            "filename": "PM_KUSUM_SolarPump_Application_Draft.pdf",
-                            "file_id": "mock_gov_3829",
-                            "web_view_link": "#"
-                        }]
-                    
-                    # Send approval back to ADK Agent
-                    new_message = types.Content(role="user", parts=[types.Part.from_text(text="Action Approved! Please save the reminder and document.")])
-                    try:
-                        st.session_state.runner.run(
-                            user_id=farmer_name,
-                            session_id=st.session_state.session_id,
-                            new_message=new_message
-                        )
-                        st.session_state.pending_hitl = None
-                        session = st.session_state.session_service.get_session(user_id=farmer_name, session_id=st.session_state.session_id)
-                        if session:
-                            session.state["pending_action"] = None
-                            session_reminders = session.state.get("reminders", [])
-                            session_docs = session.state.get("drive_docs", [])
-                            if session_reminders:
-                                st.session_state.vault_reminders = session_reminders
-                            if session_docs:
-                                st.session_state.vault_docs = session_docs
-                    except Exception:
-                        pass
-                    st.rerun()
+                    if not st.session_state.get("google_connected", False):
+                        st.error("Please connect your Google Account in the integration panel above to authorize synchronization.")
+                    else:
+                        st.success("Authorized! Plan has been synced to calendar and drive.")
+                        
+                        # If simulating the chemical pesticide flow, populate the logs immediately
+                        if st.session_state.pending_hitl and "Chemical" in st.session_state.pending_hitl.get("action_type", ""):
+                            st.session_state.vault_reminders = [{
+                                "title": "Mancozeb 75% WP Spray Reminder",
+                                "date": (datetime.date.today() + datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+                                "description": "Authorized chemical spraying for early blight control."
+                            }]
+                            st.session_state.vault_docs = [{
+                                "filename": "tomato_disease_treatment_report.txt",
+                                "file_id": "mock_doc_9941",
+                                "web_view_link": "#"
+                            }]
+                        elif st.session_state.pending_hitl and "Subsidy" in st.session_state.pending_hitl.get("action_type", ""):
+                            st.session_state.vault_docs = [{
+                                "filename": "PM_KUSUM_SolarPump_Application_Draft.pdf",
+                                "file_id": "mock_gov_3829",
+                                "web_view_link": "#"
+                            }]
+                        
+                        # Send approval back to ADK Agent
+                        new_message = types.Content(role="user", parts=[types.Part.from_text(text="Action Approved! Please save the reminder and document.")])
+                        try:
+                            st.session_state.runner.run(
+                                user_id=farmer_name,
+                                session_id=st.session_state.session_id,
+                                new_message=new_message
+                            )
+                            st.session_state.pending_hitl = None
+                            session = st.session_state.session_service.get_session(user_id=farmer_name, session_id=st.session_state.session_id)
+                            if session:
+                                session.state["pending_action"] = None
+                                session_reminders = session.state.get("reminders", [])
+                                session_docs = session.state.get("drive_docs", [])
+                                if session_reminders:
+                                    st.session_state.vault_reminders = session_reminders
+                                if session_docs:
+                                    st.session_state.vault_docs = session_docs
+                        except Exception:
+                            pass
+                        st.rerun()
             with col_rej:
                 if st.button(loc["reject_btn"], use_container_width=True):
                     st.warning("Action Rejected. Planning cancelled.")
                     st.session_state.pending_hitl = None
                     session = st.session_state.session_service.get_session(user_id=farmer_name, session_id=st.session_state.session_id)
                     if session:
-                        session.state["pending_action"] = None
+                         session.state["pending_action"] = None
                     st.rerun()
         else:
             st.success("No pending security overrides or approvals. Status secure.")
@@ -667,16 +798,20 @@ with right_col:
         
         col_c, col_d = st.columns(2)
         with col_c:
-            st.markdown("**📅 Google Calendar Events**")
-            if st.session_state.vault_reminders:
+            st.markdown("**Google Calendar Events**")
+            if not st.session_state.get("google_connected", False):
+                st.warning("Please link your Google Account to enable calendar sync.")
+            elif st.session_state.vault_reminders:
                 for rem in st.session_state.vault_reminders:
                     st.markdown(f"✓ **{rem['title']}** ({rem['date']})")
             else:
                 st.info("No Calendar events synced yet.")
                 
         with col_d:
-            st.markdown("**📁 Google Drive Docs**")
-            if st.session_state.vault_docs:
+            st.markdown("**Google Drive Docs**")
+            if not st.session_state.get("google_connected", False):
+                st.warning("Please link your Google Account to enable drive archiving.")
+            elif st.session_state.vault_docs:
                 for doc in st.session_state.vault_docs:
                     st.markdown(f"✓ **{doc['filename']}**")
             else:
@@ -689,23 +824,24 @@ row1_cols = st.columns(3)
 row2_cols = st.columns(2)
 
 with row1_cols[0]:
-    if st.button("🌿 Simulate Disease Diagnosis Flow", use_container_width=True):
+    if st.button("Simulate Disease Diagnosis Flow", use_container_width=True):
+        st.session_state.google_connected = True
         # 1. Set Chat History
         if preferred_lang == "Hindi (हिन्दी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "मेरी टमाटर की पत्तियों पर पीले धब्बे हैं। इसका क्या कारण है और इसका इलाज क्या है?"),
                 ("Agent", "निदान: टमाटर अगेती झुलसा रोग (Tomato Early Blight - Alternaria solani)।\n\nकारण: उच्च आर्द्रता (82%) और टमाटर की फलने की अवस्था।\n\nजैविक उपचार: संक्रमित पत्तियों को हटा दें। जैविक तांबा कवकनाशी स्प्रे करें।\n\nरासायनिक उपचार: मैन्कोजेब (2.5 ग्राम/लीटर)।\n\n⚠️ सुरक्षा चेतावनी: कीटनाशक छिड़काव योजना बनाने के लिए आपकी पुष्टि आवश्यक है।")
-            ]
+            ])
         elif preferred_lang == "Marathi (मराठी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "माझ्या टोमॅटोच्या पानांवर पिवळे डाग आहेत. याचे कारण काय आणि यावर काय उपाय आहे?"),
                 ("Agent", "निदान: टोमॅटो अर्ली बलाईट (Early Blight - Alternaria solani).\n\nकारण: हवेतील आर्द्रता (८२%) आणि टोमॅटो पिकाची फळ धारणा अवस्था.\n\nजैविक उपाय: संसर्गित पाने काढून टाका. जैविक कॉपर बुरशीनाशक फवारा.\n\nरासायनिक उपाय: मँकोझेब (२.५ ग्रॅम/लीटर).\n\n⚠️ सुरक्षा चेतावणी: रासायनिक फवारणीचे नियोजन करण्यासाठी तुमची मंजुरी आवश्यक आहे.")
-            ]
+            ])
         else:
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "My tomato leaves have yellow spots. What is the cause and treatment?"),
                 ("Agent", "Diagnosed: Tomato Early Blight (Alternaria solani).\n\nWhy: Circular target-like lesions, high humidity (82%), and tomato growth stage (fruiting).\n\nOrganic Treatment: Prune lower leaves. Spray organic copper fungicide or neem oil solution (5ml/L).\n\nChemical Treatment: Use Mancozeb (2.5g/L). \n\n⚠️ Safety Check: Generating chemical spray plan requires farmer's confirmation.")
-            ]
+            ])
             
         # 2. Update visible agent viz
         st.session_state.agent_viz_state = {
@@ -791,23 +927,24 @@ with row1_cols[0]:
         st.rerun()
 
 with row1_cols[1]:
-    if st.button("🌦️ Simulate Weather & Watering plan", use_container_width=True):
+    if st.button("Simulate Weather & Watering Plan", use_container_width=True):
+        st.session_state.google_connected = True
         # 1. Set Chat History
         if preferred_lang == "Hindi (हिन्दी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "पुणे में मौसम कैसा रहेगा और मुझे अपनी सिंचाई को कैसे समायोजित करना चाहिए?"),
                 ("Agent", "पुणे का मौसम: 29°C, 82% आर्द्रता, मध्यम वर्षा।\n\nपरामर्श: वर्षा चेतावनी सक्रिय है। मैंने सिंचाई बंद कर दी है। खेतों में पानी जमा होने से बचने के लिए जल निकासी चैनलों को साफ करें।\nमैंने इसे गूगल ड्राइव पर सहेज लिया है।")
-            ]
+            ])
         elif preferred_lang == "Marathi (मराठी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "पुण्यातील हवामान कसे असेल आणि मी सिंचन कसे सुधारावे?"),
                 ("Agent", "पुणे हवामान: 29°C, 82% आर्द्रता, मध्यम पाऊस.\n\nसल्ला: पाऊस इशारा सक्रिय आहे. मी सिंचन बंद केले आहे. शेतात पाणी साचू नये म्हणून पाण्याचा निचरा करा.\nमी हे गुगल ड्राइव्हवर सेव्ह केले आहे.")
-            ]
+            ])
         else:
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "What is my weather in Pune and how should I adjust irrigation?"),
                 ("Agent", "Pune Weather: 29°C, 82% humidity, moderate rain showers.\n\nAdvisory: RAIN ALERT active. I have suspended drip irrigation. Clear blocked drainage channels in fields to avoid water accumulation.\nI have saved this action to Google Drive and scheduled a checklist update.")
-            ]
+            ])
             
         # 2. Update visible agent viz
         st.session_state.agent_viz_state = {
@@ -876,23 +1013,24 @@ with row1_cols[1]:
         st.rerun()
 
 with row1_cols[2]:
-    if st.button("💰 Simulate Mandi Price lookup", use_container_width=True):
+    if st.button("Simulate Mandi Price Lookup", use_container_width=True):
+        st.session_state.google_connected = True
         # 1. Set Chat History
         if preferred_lang == "Hindi (हिन्दी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "आज टमाटर का बाजार भाव क्या है?"),
                 ("Agent", "टमाटर बाजार मूल्य: रु. 1,800 - रु. 2,600 प्रति क्विंटल।\n- नारायणगांव टमाटर मंडी: रु. 2,600 (उच्चतम दर)\n- पुणे एपीएमसी: रु. 2,400\n\nप्रवृत्ति: कम आपूर्ति के कारण तेजी। सर्वोत्तम लाभ प्राप्त करने के लिए रंग के अनुसार छंटाई करने का सुझाव दिया जाता है।")
-            ]
+            ])
         elif preferred_lang == "Marathi (मराठी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "आज टोमॅटोचे बाजारभाव काय आहेत?"),
                 ("Agent", "टोमॅटो बाजारभाव: रु. १,८०० - रु. २,६०० प्रति क्विंटल.\n- नारायणगाव टोमॅटो मार्केट: रु. २,६०० (सर्वात जास्त दर)\n- पुणे एपीएमसी: रु. २,४००\n\nकल: आवक कमी असल्याने तेजी. चांगल्या भावासाठी रंगानुसार प्रतवारी करून विक्री करा.")
-            ]
+            ])
         else:
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "What is the tomato price in nearby mandis today?"),
                 ("Agent", "Tomato market price: Rs. 1,800 - Rs. 2,600 per Quintal.\n- Narayangaon Tomato Market: Rs. 2,600/q (Highest rate)\n- Pune APMC: Rs. 2,400/q\n\nTrend: Upward due to low supply. Suggest harvesting selectively and grading by color to get maximum value.")
-            ]
+            ])
             
         # 2. Update visible agent viz
         st.session_state.agent_viz_state = {
@@ -942,23 +1080,24 @@ with row1_cols[2]:
         st.rerun()
 
 with row2_cols[0]:
-    if st.button("🧪 Simulate Fertilizer & Soil plan", use_container_width=True):
+    if st.button("Simulate Fertilizer & Soil Plan", use_container_width=True):
+        st.session_state.google_connected = True
         # 1. Set Chat History
         if preferred_lang == "Hindi (हिन्दी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "मेरी 3 एकड़ टमाटर की फसल के लिए उर्वरक आवश्यकता क्या है?"),
                 ("Agent", "उर्वरक आवश्यकता (3 एकड़ टमाटर):\n- यूरिया: 6.5 बैग (नाइट्रोजन)\n- एसएसपी: 15.0 बैग (फास्फोरस)\n- एमओपी: 6.0 बैग (पोटेशियम)\n\nछिड़काव अनुसूची: बेसल खुराक के रूप में 3 बैग यूरिया, 10 बैग एसएसपी और 3 बैग एमओपी डालें। शेष को फूल आने और फल बनने की अवस्था में विभाजित करें।")
-            ]
+            ])
         elif preferred_lang == "Marathi (मराठी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "माझ्या 3 एकर टोमॅटो पिकासाठी खत नियोजन काय आहे?"),
                 ("Agent", "खत नियोजन (3 एकर टोमॅटो):\n- युरिया: 6.5 बॅग (नायट्रोजन)\n- एसएसपी: 15.0 बॅग (फॉस्फरस)\n- एमओपी: 6.0 बॅग (पोटॅशियम)\n\nफवारणी वेळापत्रक: पेरणीच्या वेळी 3 बॅग युरिया, 10 बॅग एसएसपी आणि 3 बॅग एमओपी द्या. उर्वरित मात्रा फुले व फळे येण्याच्या वेळी विभागून द्या.")
-            ]
+            ])
         else:
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "What is my fertilizer requirement for 3 acres of tomatoes?"),
                 ("Agent", "Fertilizer Requirements (3 Acres Tomato):\n- Urea (N): 6.5 bags\n- SSP (P): 15.0 bags\n- MOP (K): 6.0 bags\n\nSplit Dosage Plan:\n1. Basal: Apply 3 bags Urea, 10 bags SSP, and 3 bags MOP.\n2. Flowering (Week 4): Apply 2 bags Urea and 1.5 bags MOP.\n3. Fruiting (Week 8): Apply remaining 1.5 bags Urea and 1.5 bags MOP.")
-            ]
+            ])
             
         # 2. Update visible agent viz
         st.session_state.agent_viz_state = {
@@ -1014,23 +1153,24 @@ with row2_cols[0]:
         st.rerun()
 
 with row2_cols[1]:
-    if st.button("🏛️ Simulate Government Subsidy Check", use_container_width=True):
+    if st.button("Simulate Government Subsidy Check", use_container_width=True):
+        st.session_state.google_connected = True
         # 1. Set Chat History
         if preferred_lang == "Hindi (हिन्दी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "क्या मुझे महाराष्ट्र में सोलर पंप या ड्रिप सिंचाई के लिए कोई सब्सिडी मिल सकती है?"),
                 ("Agent", "उपलब्ध कृषि योजनाएं (महाराष्ट्र):\n1. पीएम-कुसुम सोलर पंप योजना: 5 एकड़ से कम जोत वाले किसानों के लिए 90% सब्सिडी।\n2. पीएम कृषि सिंचाई योजना: ड्रिप सिंचाई प्रणाली स्थापित करने के लिए लघु किसानों को 80% वित्तीय सहायता।\n\n⚠️ सुरक्षा चेतावनी: पीएम-कुसुम योजना के लिए पूर्व-भरा आवेदन फॉर्म तैयार करने के लिए आपकी पुष्टि आवश्यक है।")
-            ]
+            ])
         elif preferred_lang == "Marathi (मराठी)":
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "मला महाराष्ट्रात सोलर पंप किंवा ठिबक सिंचनासाठी काही अनुदान मिळू शकते का?"),
                 ("Agent", "कृषि योजना (महाराष्ट्र):\n१. पीएम-कुसुम सोलर पंप योजना: ५ एकरपेक्षा कमी जमीन असलेल्या शेतकऱ्यांसाठी ९०% अनुदान.\n२. पीएम कृषि सिंचन योजना: ठिबक सिंचनासाठी लघू शेतकऱ्यांना ८०% आर्थिक मदत.\n\n⚠️ सुरक्षा चेतावणी: पीएम-कुसुम योजनेचा अर्ज तयार करण्यासाठी तुमची मंजुरी आवश्यक आहे.")
-            ]
+            ])
         else:
-            st.session_state.chat_history = [
+            st.session_state.chat_history.extend([
                 ("User", "Can I get any subsidies for solar pumps or drip irrigation in Maharashtra?"),
                 ("Agent", "Matched Agricultural Schemes (Maharashtra):\n1. **PM-KUSUM Solar Pump Scheme**: Offers up to 90% subsidy for installation of off-grid solar agricultural pumps for holdings under 5 acres.\n2. **PM Krishi Sinchayee Yojana (PMKSY)**: Provides up to 80% financial assistance for installing drip irrigation kits.\n\n⚠️ Safety Check: Generating a pre-filled application draft requires farmer's confirmation.")
-            ]
+            ])
             
         # 2. Update visible agent viz
         st.session_state.agent_viz_state = {
